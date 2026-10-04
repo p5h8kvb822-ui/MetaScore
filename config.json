@@ -1,5 +1,5 @@
 {
-  "sample_mode": true,
+  "sample_mode": false,
   "hashtags": "#football #notesdesmatchs",
   "max_matches": 20,
   "pause_between_posts_seconds": 20,
