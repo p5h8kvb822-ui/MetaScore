@@ -1,0 +1,13 @@
+{
+  "sample_mode": true,
+  "hashtags": "#football #notesdesmatchs",
+  "max_matches": 20,
+  "pause_between_posts_seconds": 20,
+  "leagues": {
+    "Ligue 1": {"sofascore_id": 34, "tag": "#ligue1"},
+    "Premier League": {"sofascore_id": 17, "tag": "#premierleague"},
+    "La Liga": {"sofascore_id": 8, "tag": "#laliga"},
+    "Bundesliga": {"sofascore_id": 35, "tag": "#bundesliga"},
+    "Serie A": {"sofascore_id": 23, "tag": "#seriea"}
+  }
+}

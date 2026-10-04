@@ -1,0 +1,66 @@
+[
+ {
+  "league": "Ligue 1",
+  "home": "Marseille",
+  "away": "Lyon",
+  "score_home": 3,
+  "score_away": 2,
+  "xg_home": 2.1,
+  "xg_away": 1.7,
+  "sot_home": 7,
+  "sot_away": 6,
+  "big_home": 3,
+  "big_away": 2,
+  "red_cards": 0,
+  "goal_minutes": [
+   12,
+   35,
+   58,
+   71,
+   90
+  ],
+  "max_player_rating": 8.4,
+  "poss_home": 54,
+  "poss_away": 46
+ },
+ {
+  "league": "Ligue 1",
+  "home": "Lille",
+  "away": "Nice",
+  "score_home": 0,
+  "score_away": 0,
+  "xg_home": 0.8,
+  "xg_away": 0.6,
+  "sot_home": 2,
+  "sot_away": 1,
+  "big_home": 0,
+  "big_away": 0,
+  "red_cards": 0,
+  "goal_minutes": [],
+  "max_player_rating": 7.0,
+  "poss_home": 48,
+  "poss_away": 52
+ },
+ {
+  "league": "Premier League",
+  "home": "Arsenal",
+  "away": "Chelsea",
+  "score_home": 2,
+  "score_away": 1,
+  "xg_home": 2.4,
+  "xg_away": 0.9,
+  "sot_home": 8,
+  "sot_away": 3,
+  "big_home": 4,
+  "big_away": 1,
+  "red_cards": 1,
+  "goal_minutes": [
+   20,
+   44,
+   88
+  ],
+  "max_player_rating": 8.1,
+  "poss_home": 58,
+  "poss_away": 42
+ }
+]
