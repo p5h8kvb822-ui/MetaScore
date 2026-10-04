@@ -4,10 +4,37 @@
   "max_matches": 20,
   "pause_between_posts_seconds": 20,
   "leagues": {
-    "Ligue 1": {"sofascore_id": 34, "tag": "#ligue1"},
-    "Premier League": {"sofascore_id": 17, "tag": "#premierleague"},
-    "La Liga": {"sofascore_id": 8, "tag": "#laliga"},
-    "Bundesliga": {"sofascore_id": 35, "tag": "#bundesliga"},
-    "Serie A": {"sofascore_id": 23, "tag": "#seriea"}
+    "Ligue 1": {
+      "sofascore_id": 34,
+      "tag": "#ligue1"
+    },
+    "Premier League": {
+      "sofascore_id": 17,
+      "tag": "#premierleague"
+    },
+    "La Liga": {
+      "sofascore_id": 8,
+      "tag": "#laliga"
+    },
+    "Bundesliga": {
+      "sofascore_id": 35,
+      "tag": "#bundesliga"
+    },
+    "Serie A": {
+      "sofascore_id": 23,
+      "tag": "#seriea"
+    },
+    "Ligue des champions": {
+      "sofascore_id": 7,
+      "tag": "#championsleague"
+    },
+    "Europa League": {
+      "sofascore_id": 679,
+      "tag": "#europaleague"
+    },
+    "Conference League": {
+      "sofascore_id": 17015,
+      "tag": "#conferenceleague"
+    }
   }
 }

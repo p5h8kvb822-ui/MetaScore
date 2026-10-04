@@ -1,4 +1,4 @@
-"""Publication sur Instagram, un post par match.
+"""Publication sur Instagram : un carrousel (2 images) par match.
 Variables d'environnement : IG_ACCESS_TOKEN, IMAGE_BASE_URL ; optionnelles : IG_USER_ID (défaut « me »),
 IG_GRAPH_URL (défaut graph.instagram.com = « API Instagram avec connexion Instagram »).
 Si tu utilises la connexion Facebook : IG_GRAPH_URL=https://graph.facebook.com/v23.0 et IG_USER_ID = identifiant du compte."""
@@ -35,7 +35,16 @@ def publish(manifest_path):
     errors = 0
     for i, p in enumerate(mf["posts"], 1):
         try:
-            cid = _call("POST", f"{ig}/media", image_url=f"{base}/{p['image']}", caption=p["caption"])["id"]
+            urls = [f"{base}/{name}" for name in p["images"]]
+            if len(urls) == 1:
+                cid = _call("POST", f"{ig}/media", image_url=urls[0], caption=p["caption"])["id"]
+            else:  # carrousel : 2 swipes (match + meilleur joueur)
+                kids = []
+                for u in urls:
+                    kid = _call("POST", f"{ig}/media", image_url=u, is_carousel_item="true")["id"]
+                    _wait_ready(kid)
+                    kids.append(kid)
+                cid = _call("POST", f"{ig}/media", media_type="CAROUSEL", children=",".join(kids), caption=p["caption"])["id"]
             _wait_ready(cid)
             pub = _call("POST", f"{ig}/media_publish", creation_id=cid)
             print(f"[{i}/{len(mf['posts'])}] publié, id = {pub.get('id')}")

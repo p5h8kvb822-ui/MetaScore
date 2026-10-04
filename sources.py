@@ -35,6 +35,23 @@ def _stat(stats, *needles):
     return None, None
 
 
+def _best_player(ev, lineups):
+    """Joueur avec la meilleure note SofaScore (les deux équipes confondues)."""
+    best = None
+    for side in ("home", "away"):
+        for p in lineups.get(side, {}).get("players", []):
+            st = p.get("statistics") or {}
+            r = st.get("rating")
+            if r and (best is None or r > best["rating"]):
+                pl = p.get("player", {})
+                best = {"name": pl.get("name") or pl.get("shortName"), "id": pl.get("id"),
+                        "position": pl.get("position") or p.get("position"),
+                        "shirt": p.get("shirtNumber") or pl.get("jerseyNumber"),
+                        "team": ev["homeTeam"]["name"] if side == "home" else ev["awayTeam"]["name"],
+                        "rating": r, "stats": st}
+    return best
+
+
 def normalize_event(ev, stats, incidents, lineups):
     h, a = _stat(stats, "expected goals")
     sh, sa = _stat(stats, "shots on target")
@@ -53,6 +70,7 @@ def normalize_event(ev, stats, incidents, lineups):
         "xg_home": h, "xg_away": a, "sot_home": sh, "sot_away": sa, "big_home": bh, "big_away": ba,
         "poss_home": ph, "poss_away": pa, "red_cards": (rh or 0) + (ra or 0), "goal_minutes": minutes,
         "max_player_rating": max(ratings) if ratings else None,
+        "best_player": _best_player(ev, lineups),
     }
 
 
