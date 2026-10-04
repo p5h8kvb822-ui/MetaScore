@@ -1,0 +1,35 @@
+name: Notes des matchs sur Instagram
+on:
+  schedule:
+    - cron: "30 23 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Générer les images
+        run: python main.py
+      - name: Enregistrer les images dans le dépôt
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add published
+          git commit -m "images du jour" || echo "rien à publier"
+          git push
+      - name: Publier sur Instagram
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: |
+          [ -f published/latest.txt ] || exit 0
+          MANIFEST=$(cat published/latest.txt)
+          DIR=$(dirname "$MANIFEST")
+          export IMAGE_BASE_URL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_REF_NAME}/${DIR}"
+          sleep 45
+          python post_instagram.py "$MANIFEST"
