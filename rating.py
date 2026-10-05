@@ -1,11 +1,11 @@
-"""Note /10 d'un match terminé, estimée à partir des données SofaScore.
+"""Note /10 d'un match terminé, estimée à partir des données API-Football.
 Composantes (0-1) pondérées ; si une donnée manque, sa pondération est redistribuée."""
 
 WEIGHTS = {
     "goals": 0.25,    # nombre de buts
     "xg": 0.15,       # xG cumulés
     "sot": 0.15,      # tirs cadrés
-    "big": 0.10,      # grosses occasions
+    "shots": 0.10,    # tirs au total
     "close": 0.15,    # score serré
     "drama": 0.10,    # buts tardifs / rebondissements, rouge
     "star": 0.10,     # meilleure note individuelle
@@ -25,8 +25,8 @@ def components(m):
     c["xg"] = None if xg is None else min(1, xg / 4)
     sot = _sum(m.get("sot_home"), m.get("sot_away"))
     c["sot"] = None if sot is None else min(1, sot / 12)
-    big = _sum(m.get("big_home"), m.get("big_away"))
-    c["big"] = None if big is None else min(1, big / 6)
+    shots = _sum(m.get("shots_home"), m.get("shots_away"))
+    c["shots"] = None if shots is None else min(1, shots / 25)
     margin = abs(m["score_home"] - m["score_away"])
     c["close"] = 1 - min(1, margin / 3) if goals > 0 else 0.35  # 0-0 = peu d'intérêt
     late = sum(1 for t in m.get("goal_minutes", []) if t >= 80)

@@ -85,12 +85,12 @@ def _fit(d, text, path, size, max_w):
     return _f(path, size)
 
 
-def get_logo(team_id):
-    """Logo du club (PNG). None si indisponible."""
-    if not team_id:
+def get_logo(url):
+    """Logo du club (image à partir de son adresse). None si indisponible."""
+    if not url:
         return None
     try:
-        r = requests.get(f"https://api.sofascore.com/api/v1/team/{team_id}/image", headers=UA, timeout=20)
+        r = requests.get(url, headers=UA, timeout=20)
         r.raise_for_status()
         return Image.open(io.BytesIO(r.content)).convert("RGBA")
     except Exception:
@@ -128,8 +128,8 @@ def match_card(m, date_str, path, use_logos=False, bg=None):
     d.text((S - 60, 62), "TERMINÉ", font=_f(FB, 28), fill=SUB, anchor="ra")
 
     cy = 300
-    _crest(img, d, m["home"], m.get("home_id"), 235, cy, 105, use_logos)
-    _crest(img, d, m["away"], m.get("away_id"), 845, cy, 105, use_logos)
+    _crest(img, d, m["home"], m.get("home_logo"), 235, cy, 105, use_logos)
+    _crest(img, d, m["away"], m.get("away_logo"), 845, cy, 105, use_logos)
     d.text((540, cy), f'{m["score_home"]} - {m["score_away"]}', font=_f(FB, 120), fill=TXT, anchor="mm")
     d.text((235, 455), m["home"], font=_fit(d, m["home"], FB, 40, 420), fill=TXT, anchor="mm")
     d.text((845, 455), m["away"], font=_fit(d, m["away"], FB, 40, 420), fill=TXT, anchor="mm")
@@ -144,11 +144,13 @@ def match_card(m, date_str, path, use_logos=False, bg=None):
     if m.get("xg_home") is not None:
         stats.append(("xG", f'{fr(m["xg_home"])} – {fr(m["xg_away"])}'))
     if m.get("sot_home") is not None:
-        stats.append(("TIRS CADRÉS", f'{m["sot_home"]} – {m["sot_away"]}'))
-    if m.get("big_home") is not None:
-        stats.append(("GROSSES OCCASIONS", f'{m["big_home"]} – {m["big_away"]}'))
+        stats.append(("TIRS CADRÉS", f'{round(m["sot_home"])} – {round(m["sot_away"])}'))
+    if m.get("shots_home") is not None:
+        stats.append(("TIRS", f'{round(m["shots_home"])} – {round(m["shots_away"])}'))
     if m.get("poss_home") is not None:
         stats.append(("POSSESSION", f'{round(m["poss_home"])}% – {round(m["poss_away"])}%'))
+    if m.get("corners_home") is not None:
+        stats.append(("CORNERS", f'{round(m["corners_home"])} – {round(m["corners_away"])}'))
     for i, (lab, val) in enumerate(stats[:4]):
         x0 = 60 if i % 2 == 0 else 555
         y0 = 725 if i < 2 else 855
@@ -168,58 +170,57 @@ def _num(v):
     return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
-def player_stat_lines(s):
-    """Stats du match du joueur -> [(libellé, valeur)], seulement celles disponibles et non nulles.
-    Les clés viennent de l'API SofaScore ; les clés inconnues sont ignorées."""
+def player_stat_lines(st):
+    """Stats du match du joueur (structure API-Football) -> [(libellé, valeur)], non nulles seulement."""
     out = []
 
-    def cnt(label, key):
-        v = _num(s.get(key))
+    def g(sec, key):
+        v = (st.get(sec) or {}).get(key)
+        try:
+            return float(v) if v not in (None, "") else None
+        except (TypeError, ValueError):
+            return None
+
+    def cnt(label, sec, key):
+        v = g(sec, key)
         if v:
             out.append((label, str(int(v))))
 
-    def dec(label, key):
-        v = _num(s.get(key))
-        if v:
-            out.append((label, fr(round(v, 2))))
-
-    def frac(label, ok, tot, total_is_sum=False):
-        a, b = _num(s.get(ok)), _num(s.get(tot))
-        if a is None or b is None:
-            return
-        if total_is_sum:
-            b = a + b
-        if b > 0:
+    def frac(label, ok, tot):
+        a, b = ok, tot
+        if a is not None and b:
             out.append((label, f"{int(a)}/{int(b)}"))
 
-    mins = _num(s.get("minutesPlayed"))
+    mins = g("games", "minutes")
     if mins:
         out.append(("Minutes jouées", f"{int(mins)}'"))
-    cnt("Buts", "goals"); cnt("Passes décisives", "goalAssist")
-    dec("xG", "expectedGoals"); dec("xA", "expectedAssists")
-    on, off, blk = (_num(s.get(k)) or 0 for k in ("onTargetScoringAttempt", "shotOffTarget", "blockedScoringAttempt"))
-    if on + off + blk:
-        out.append(("Tirs (cadrés)", f"{int(on + off + blk)} ({int(on)})"))
-    cnt("Grosses occasions ratées", "bigChanceMissed")
-    cnt("Arrêts", "saves")
-    frac("Passes réussies", "accuratePass", "totalPass")
-    cnt("Passes clés", "keyPass"); cnt("Grosses occasions créées", "bigChanceCreated")
-    frac("Dribbles réussis", "wonContest", "totalContest")
-    frac("Duels gagnés", "duelWon", "duelLost", True)
-    frac("Duels aériens", "aerialWon", "aerialLost", True)
-    frac("Tacles réussis", "wonTackle", "totalTackle")
-    cnt("Interceptions", "interceptionWon"); cnt("Dégagements", "totalClearance")
-    cnt("Récupérations", "ballRecovery"); cnt("Touches", "touches")
-    cnt("Ballons perdus", "possessionLostCtrl")
-    cnt("Fautes subies", "wasFouled"); cnt("Fautes commises", "fouls")
+    cnt("Buts", "goals", "total"); cnt("Passes décisives", "goals", "assists")
+    shots, on = g("shots", "total"), g("shots", "on")
+    if shots:
+        out.append(("Tirs (cadrés)", f"{int(shots)} ({int(on or 0)})"))
+    cnt("Penaltys marqués", "penalty", "scored"); cnt("Penaltys ratés", "penalty", "missed")
+    cnt("Penaltys arrêtés", "penalty", "saved")
+    cnt("Arrêts", "goals", "saves"); cnt("Buts encaissés", "goals", "conceded")
+    tot, acc = g("passes", "total"), g("passes", "accuracy")
+    if tot and acc is not None:
+        frac("Passes réussies", acc if acc <= tot else round(tot * acc / 100), tot)
+    elif tot:
+        out.append(("Passes", str(int(tot))))
+    cnt("Passes clés", "passes", "key")
+    frac("Dribbles réussis", g("dribbles", "success"), g("dribbles", "attempts"))
+    frac("Duels gagnés", g("duels", "won"), g("duels", "total"))
+    cnt("Tacles", "tackles", "total"); cnt("Interceptions", "tackles", "interceptions")
+    cnt("Contres", "tackles", "blocks")
+    cnt("Fautes subies", "fouls", "drawn"); cnt("Fautes commises", "fouls", "committed")
+    cnt("Cartons jaunes", "cards", "yellow"); cnt("Cartons rouges", "cards", "red")
     return out
 
 
-def get_player_photo(player_id):
-    if not player_id:
+def get_player_photo(url):
+    if not url:
         return None
     try:
-        r = requests.get(f"https://api.sofascore.com/api/v1/player/{player_id}/image", headers=UA, timeout=20)
+        r = requests.get(url, headers=UA, timeout=20)
         r.raise_for_status()
         return Image.open(io.BytesIO(r.content)).convert("RGBA")
     except Exception:
@@ -242,7 +243,7 @@ def player_card(m, date_str, path, use_logos=False, bg=None):
 
     # photo (ou initiales) + nom + note du joueur
     cx, cy, r = 190, 255, 110
-    photo = get_player_photo(bp.get("id")) if use_logos else None
+    photo = get_player_photo(bp.get("photo")) if use_logos else None
     if photo:
         photo.thumbnail((2 * r, 2 * r))
         mask = Image.new("L", photo.size, 0)
