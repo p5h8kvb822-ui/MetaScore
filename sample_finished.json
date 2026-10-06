@@ -3,14 +3,20 @@
   "league": "Ligue 1",
   "home": "Marseille",
   "away": "Lyon",
+  "home_logo": null,
+  "away_logo": null,
   "score_home": 3,
   "score_away": 2,
   "xg_home": 2.1,
   "xg_away": 1.7,
   "sot_home": 7,
   "sot_away": 6,
-  "big_home": 3,
-  "big_away": 2,
+  "shots_home": 15,
+  "shots_away": 12,
+  "poss_home": 54,
+  "poss_away": 46,
+  "corners_home": 6,
+  "corners_away": 4,
   "red_cards": 0,
   "goal_minutes": [
    12,
@@ -19,48 +25,222 @@
    71,
    90
   ],
-  "max_player_rating": 8.4,
-  "poss_home": 54,
-  "poss_away": 46
+  "best_player": {
+   "name": "Léo Martin",
+   "photo": null,
+   "position": "F",
+   "shirt": 10,
+   "team": "Marseille",
+   "rating": 8.4,
+   "stats": {
+    "games": {
+     "minutes": 90,
+     "rating": "8.4",
+     "position": "F",
+     "number": 10,
+     "captain": false
+    },
+    "shots": {
+     "total": 7,
+     "on": 4
+    },
+    "goals": {
+     "total": 2,
+     "assists": 1,
+     "conceded": 0,
+     "saves": null
+    },
+    "passes": {
+     "total": 31,
+     "key": 3,
+     "accuracy": "25"
+    },
+    "tackles": {
+     "total": 1,
+     "blocks": 0,
+     "interceptions": 0
+    },
+    "duels": {
+     "total": 14,
+     "won": 8
+    },
+    "dribbles": {
+     "attempts": 7,
+     "success": 4,
+     "past": null
+    },
+    "fouls": {
+     "drawn": 3,
+     "committed": 1
+    },
+    "cards": {
+     "yellow": 0,
+     "red": 0
+    },
+    "penalty": {
+     "scored": 0,
+     "missed": 0,
+     "saved": null
+    },
+    "offsides": 1
+   },
+   "id": 1,
+   "profile": {
+    "birth": {
+     "date": "2002-03-14"
+    },
+    "nationality": "France",
+    "height": "181 cm",
+    "weight": "74 kg",
+    "age": 23
+   }
+  },
+  "league_logo": null,
+  "is_national": false,
+  "stats_home": {
+   "Shots on Goal": 7,
+   "Shots off Goal": 5,
+   "Total Shots": 15,
+   "Blocked Shots": 3,
+   "Shots insidebox": 10,
+   "Shots outsidebox": 5,
+   "Fouls": 11,
+   "Corner Kicks": 6,
+   "Offsides": 2,
+   "Ball Possession": "54%",
+   "Yellow Cards": 1,
+   "Red Cards": null,
+   "Goalkeeper Saves": 3,
+   "Total passes": 512,
+   "Passes accurate": 441,
+   "Passes %": "86%",
+   "expected_goals": "2.10",
+   "goals_prevented": null
+  },
+  "stats_away": {
+   "Shots on Goal": 6,
+   "Shots off Goal": 4,
+   "Total Shots": 12,
+   "Blocked Shots": 2,
+   "Shots insidebox": 8,
+   "Shots outsidebox": 4,
+   "Fouls": 13,
+   "Corner Kicks": 4,
+   "Offsides": 3,
+   "Ball Possession": "46%",
+   "Yellow Cards": 3,
+   "Red Cards": null,
+   "Goalkeeper Saves": 4,
+   "Total passes": 436,
+   "Passes accurate": 361,
+   "Passes %": "83%",
+   "expected_goals": "1.70",
+   "goals_prevented": null
+  }
  },
  {
   "league": "Ligue 1",
   "home": "Lille",
   "away": "Nice",
+  "home_logo": null,
+  "away_logo": null,
   "score_home": 0,
   "score_away": 0,
   "xg_home": 0.8,
   "xg_away": 0.6,
   "sot_home": 2,
   "sot_away": 1,
-  "big_home": 0,
-  "big_away": 0,
+  "shots_home": 8,
+  "shots_away": 6,
+  "poss_home": 48,
+  "poss_away": 52,
+  "corners_home": 3,
+  "corners_away": 5,
   "red_cards": 0,
   "goal_minutes": [],
-  "max_player_rating": 7.0,
-  "poss_home": 48,
-  "poss_away": 52
+  "best_player": null
  },
  {
   "league": "Premier League",
   "home": "Arsenal",
   "away": "Chelsea",
+  "home_logo": null,
+  "away_logo": null,
   "score_home": 2,
   "score_away": 1,
   "xg_home": 2.4,
   "xg_away": 0.9,
   "sot_home": 8,
   "sot_away": 3,
-  "big_home": 4,
-  "big_away": 1,
+  "shots_home": 17,
+  "shots_away": 7,
+  "poss_home": 58,
+  "poss_away": 42,
+  "corners_home": 9,
+  "corners_away": 2,
   "red_cards": 1,
   "goal_minutes": [
    20,
    44,
    88
   ],
-  "max_player_rating": 8.1,
-  "poss_home": 58,
-  "poss_away": 42
+  "best_player": {
+   "name": "Tom Walker",
+   "photo": null,
+   "position": "M",
+   "shirt": 8,
+   "team": "Arsenal",
+   "rating": 8.1,
+   "stats": {
+    "games": {
+     "minutes": 90,
+     "rating": "8.1",
+     "position": "M",
+     "number": 8
+    },
+    "shots": {
+     "total": 3,
+     "on": 2
+    },
+    "goals": {
+     "total": 1,
+     "assists": 1,
+     "conceded": 0,
+     "saves": null
+    },
+    "passes": {
+     "total": 68,
+     "key": 5,
+     "accuracy": "61"
+    },
+    "tackles": {
+     "total": 3,
+     "blocks": 0,
+     "interceptions": 2
+    },
+    "duels": {
+     "total": 11,
+     "won": 7
+    },
+    "dribbles": {
+     "attempts": 4,
+     "success": 3,
+     "past": null
+    },
+    "fouls": {
+     "drawn": 2,
+     "committed": 0
+    },
+    "cards": {
+     "yellow": 1,
+     "red": 0
+    },
+    "penalty": {
+     "scored": 0,
+     "missed": 0,
+     "saved": null
+    }
+   }
+  }
  }
 ]

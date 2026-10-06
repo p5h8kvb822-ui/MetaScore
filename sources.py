@@ -30,6 +30,15 @@ def _get(path, interval=7, **params):
     return data.get("response", [])
 
 
+NATIONAL_KEYS = ("nations league", "world cup", "euro championship", "european championship", "friendlies",
+                 "qualification", "copa america", "africa cup", "asian cup", "gold cup")
+
+
+def _is_national(league_name):
+    n = league_name.lower()
+    return any(k in n for k in NATIONAL_KEYS) and "club" not in n
+
+
 def _fold(t):
     """minuscules sans accents, pour chercher une équipe par son nom."""
     return "".join(c for c in unicodedata.normalize("NFKD", t.lower()) if not unicodedata.combining(c))
@@ -63,7 +72,7 @@ def _best_player(fx):
             if rating and (best is None or rating > best["rating"]):
                 pl = p.get("player", {})
                 g = st.get("games", {})
-                best = {"name": pl.get("name"), "photo": pl.get("photo"), "position": g.get("position"),
+                best = {"id": pl.get("id"), "name": pl.get("name"), "photo": pl.get("photo"), "position": g.get("position"),
                         "shirt": g.get("number"), "team": team, "rating": rating, "stats": st}
     return best
 
@@ -91,6 +100,9 @@ def normalize(fx):
         "poss_home": g(hs, "Ball Possession"), "poss_away": g(as_, "Ball Possession"),
         "corners_home": g(hs, "Corner Kicks"), "corners_away": g(as_, "Corner Kicks"),
         "red_cards": reds, "goal_minutes": goal_minutes,
+        "stats_home": hs, "stats_away": as_,  # toutes les stats d'équipe fournies par l'API
+        "league_logo": fx["league"].get("logo"),
+        "is_national": _is_national(fx["league"].get("name", "")),
         "best_player": _best_player(fx),
     }
 
@@ -130,5 +142,13 @@ def fetch_finished_matches(cfg, day=None, team=None):
         for fx in _get("fixtures", gap, id=fid):  # stats, joueurs et événements du match
             m = normalize(fx)
             m["league"] = names.get(fx["league"]["id"], fx["league"]["name"])
+            bp = m.get("best_player")
+            if bp and bp.get("id"):  # fiche du joueur : date de naissance, nationalité, taille...
+                try:
+                    res = _get("players/profiles", gap, player=bp["id"])
+                    if res:
+                        bp["profile"] = res[0].get("player", res[0])
+                except Exception as e:  # on continue sans ces infos
+                    print(f"  profil du joueur indisponible : {e}")
             out.append(m)
     return out
