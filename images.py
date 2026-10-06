@@ -112,6 +112,7 @@ def _placeholder(d, name, cx, cy, r):
 def _paste_logo(img, height=None):
     """Ton logo (logo.png, fond transparent) centré en bas de l'image. Ignoré si le fichier est absent."""
     if not LOGO_PATH.exists():
+        print("ATTENTION : logo.png introuvable à côté de images.py : images publiées sans logo")
         return
     logo = Image.open(LOGO_PATH).convert("RGBA")
     h = height or LOGO_H
@@ -259,10 +260,17 @@ def player_card(m, date_str, path, use_logos=False, bg=None):
     cx, cy, r = 190, 255, 110
     photo = get_player_photo(bp.get("photo")) if use_logos else None
     if photo:
-        photo.thumbnail((2 * r, 2 * r))
-        mask = Image.new("L", photo.size, 0)
-        ImageDraw.Draw(mask).ellipse([0, 0, photo.width, photo.height], fill=255)
-        img.paste(photo, (cx - photo.width // 2, cy - photo.height // 2), mask)
+        size = 2 * r
+        scale = max(size / photo.width, size / photo.height)
+        photo = photo.resize((round(photo.width * scale), round(photo.height * scale)), Image.LANCZOS)
+        left = (photo.width - size) // 2
+        top = round((photo.height - size) * 0.15)  # on garde plutôt le haut de la photo (visage)
+        photo = photo.crop((left, top, left + size, top + size))
+        base = Image.new("RGBA", (size, size), CARD + (255,))
+        base.alpha_composite(photo)
+        mask = Image.new("L", (size, size), 0)
+        ImageDraw.Draw(mask).ellipse([0, 0, size, size], fill=255)
+        img.paste(base.convert("RGB"), (cx - r, cy - r), mask)
         d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 255, 255), width=5)
     else:
         _placeholder(d, bp["name"], cx, cy, r)
@@ -271,7 +279,7 @@ def player_card(m, date_str, path, use_logos=False, bg=None):
     d.text((340, 262), info, font=_fit(d, info, FR, 28, S - 340 - 50), fill=SUB, anchor="lm")
     d.rounded_rectangle([340, 305, 560, 385], 40, fill=pcolor, outline=TXT if THEMED else None, width=5)
     lum = 0.299 * pcolor[0] + 0.587 * pcolor[1] + 0.114 * pcolor[2]
-    d.text((450, 345), fr(bp["rating"]), font=_f(FB, 54), fill=(14, 20, 36) if lum > 140 else (255, 255, 255), anchor="mm")
+    d.text((450, 345), fr(round(bp["rating"], 1)), font=_f(FB, 54), fill=(14, 20, 36) if lum > 140 else (255, 255, 255), anchor="mm")
 
     # grille de stats : 2 colonnes
     lines = player_stat_lines(bp.get("stats", {}))[:16]
