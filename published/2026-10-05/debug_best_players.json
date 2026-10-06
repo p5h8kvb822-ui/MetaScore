@@ -1,0 +1,65 @@
+{
+ "France-Belgium": {
+  "name": "D. Doué",
+  "photo": "https://media.api-sports.io/football/players/343027.png",
+  "position": "F",
+  "shirt": 20,
+  "team": "France",
+  "rating": 8.86,
+  "stats": {
+   "games": {
+    "minutes": 18,
+    "number": 20,
+    "position": "F",
+    "rating": "8.86",
+    "captain": false,
+    "substitute": false
+   },
+   "offsides": 0,
+   "shots": {
+    "total": 1,
+    "on": 1
+   },
+   "goals": {
+    "total": 1,
+    "conceded": null,
+    "assists": 2,
+    "saves": 0
+   },
+   "passes": {
+    "total": 10,
+    "key": 2,
+    "accuracy": "10"
+   },
+   "tackles": {
+    "total": 1,
+    "blocks": 0,
+    "interceptions": 0
+   },
+   "duels": {
+    "total": 2,
+    "won": 1
+   },
+   "dribbles": {
+    "attempts": 1,
+    "success": 0,
+    "past": null
+   },
+   "fouls": {
+    "drawn": 0,
+    "committed": 0
+   },
+   "cards": {
+    "yellow": 0,
+    "red": 0
+   },
+   "penalty": {
+    "won": null,
+    "commited": null,
+    "scored": 0,
+    "missed": null,
+    "saved": null
+   }
+  }
+ }
+}
