@@ -1,5 +1,6 @@
 {
  "France-Belgium": {
+  "id": 343027,
   "name": "D. Doué",
   "photo": "https://media.api-sports.io/football/players/343027.png",
   "position": "F",
@@ -60,6 +61,24 @@
     "missed": null,
     "saved": null
    }
+  },
+  "profile": {
+   "id": 343027,
+   "name": "D. Doué",
+   "firstname": "Désiré",
+   "lastname": "Doué",
+   "age": 21,
+   "birth": {
+    "date": "2005-06-03",
+    "place": "Angers",
+    "country": "France"
+   },
+   "nationality": "France",
+   "height": "181",
+   "weight": "79",
+   "number": 20,
+   "position": "Attacker",
+   "photo": "https://media.api-sports.io/football/players/343027.png"
   }
  }
 }
