@@ -1,54 +1,54 @@
 {
- "France-Belgium": {
-  "id": 343027,
-  "name": "D. Doué",
-  "photo": "https://media.api-sports.io/football/players/343027.png",
-  "position": "F",
-  "shirt": 20,
-  "team": "France",
-  "rating": 8.86,
+ "Italy-Türkiye": {
+  "id": 331046,
+  "name": "Issa Doumbia",
+  "photo": "https://media.api-sports.io/football/players/331046.png",
+  "position": "M",
+  "shirt": 15,
+  "team": "Italy",
+  "rating": 8.3,
   "stats": {
    "games": {
-    "minutes": 18,
-    "number": 20,
-    "position": "F",
-    "rating": "8.86",
+    "minutes": 90,
+    "number": 15,
+    "position": "M",
+    "rating": "8.3",
     "captain": false,
     "substitute": false
    },
-   "offsides": 0,
+   "offsides": 1,
    "shots": {
-    "total": 1,
-    "on": 1
+    "total": 2,
+    "on": 2
    },
    "goals": {
-    "total": 1,
-    "conceded": null,
-    "assists": 2,
-    "saves": 0
+    "total": null,
+    "conceded": 0,
+    "assists": 0,
+    "saves": null
    },
    "passes": {
-    "total": 10,
-    "key": 2,
-    "accuracy": "10"
+    "total": 34,
+    "key": 1,
+    "accuracy": "32"
    },
    "tackles": {
     "total": 1,
-    "blocks": 0,
-    "interceptions": 0
+    "blocks": null,
+    "interceptions": null
    },
    "duels": {
-    "total": 2,
-    "won": 1
+    "total": 10,
+    "won": 8
    },
    "dribbles": {
-    "attempts": 1,
-    "success": 0,
+    "attempts": 3,
+    "success": 3,
     "past": null
    },
    "fouls": {
-    "drawn": 0,
-    "committed": 0
+    "drawn": 2,
+    "committed": 1
    },
    "cards": {
     "yellow": 0,
@@ -58,27 +58,27 @@
     "won": null,
     "commited": null,
     "scored": 0,
-    "missed": null,
+    "missed": 0,
     "saved": null
    }
   },
   "profile": {
-   "id": 343027,
-   "name": "D. Doué",
-   "firstname": "Désiré",
-   "lastname": "Doué",
-   "age": 21,
+   "id": 331046,
+   "name": "I. Doumbia",
+   "firstname": "Issa",
+   "lastname": "Doumbia",
+   "age": 22,
    "birth": {
-    "date": "2005-06-03",
-    "place": "Angers",
-    "country": "France"
+    "date": "2003-10-16",
+    "place": null,
+    "country": "Italy"
    },
-   "nationality": "France",
-   "height": "181",
+   "nationality": "Italy",
+   "height": "187",
    "weight": "79",
-   "number": 20,
-   "position": "Attacker",
-   "photo": "https://media.api-sports.io/football/players/343027.png"
+   "number": 15,
+   "position": "Midfielder",
+   "photo": "https://media.api-sports.io/football/players/331046.png"
   }
  }
 }
