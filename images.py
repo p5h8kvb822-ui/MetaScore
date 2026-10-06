@@ -5,6 +5,8 @@ from rating import tier
 
 OUT = pathlib.Path(__file__).resolve().parent / "out"
 S = 1080  # image carrée 1:1
+LOGO_PATH = pathlib.Path(__file__).resolve().parent / "logo.png"
+LOGO_H = 130
 BG, CARD, TXT, SUB = (14, 20, 36), (26, 36, 62), (255, 255, 255), (150, 165, 195)
 FB = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FR = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
@@ -107,6 +109,17 @@ def _placeholder(d, name, cx, cy, r):
     d.text((cx, cy), txt, font=_f(FB, 60), fill=(255, 255, 255), anchor="mm")
 
 
+def _paste_logo(img, height=None):
+    """Ton logo (logo.png, fond transparent) centré en bas de l'image. Ignoré si le fichier est absent."""
+    if not LOGO_PATH.exists():
+        return
+    logo = Image.open(LOGO_PATH).convert("RGBA")
+    h = height or LOGO_H
+    w = round(logo.width * h / logo.height)
+    logo = logo.resize((w, h), Image.LANCZOS)
+    img.paste(logo, ((S - w) // 2, S - h - 28), logo)
+
+
 def _crest(img, d, name, team_id, cx, cy, r, use_logos):
     logo = get_logo(team_id) if use_logos else None
     if logo:
@@ -127,17 +140,17 @@ def match_card(m, date_str, path, use_logos=False, bg=None):
     d.text((60, 62), f'{m["league"].upper()} · {date_str}', font=_f(FB, 28), fill=SUB)
     d.text((S - 60, 62), "TERMINÉ", font=_f(FB, 28), fill=SUB, anchor="ra")
 
-    cy = 300
+    cy = 285
     _crest(img, d, m["home"], m.get("home_logo"), 235, cy, 105, use_logos)
     _crest(img, d, m["away"], m.get("away_logo"), 845, cy, 105, use_logos)
     d.text((540, cy), f'{m["score_home"]} - {m["score_away"]}', font=_f(FB, 120), fill=TXT, anchor="mm")
-    d.text((235, 455), m["home"], font=_fit(d, m["home"], FB, 40, 420), fill=TXT, anchor="mm")
-    d.text((845, 455), m["away"], font=_fit(d, m["away"], FB, 40, 420), fill=TXT, anchor="mm")
+    d.text((235, 440), m["home"], font=_fit(d, m["home"], FB, 40, 420), fill=TXT, anchor="mm")
+    d.text((845, 440), m["away"], font=_fit(d, m["away"], FB, 40, 420), fill=TXT, anchor="mm")
 
     # pastille de note (couleur selon le palier)
-    d.rounded_rectangle([280, 535, 800, 655], 60, fill=color, outline=TXT if THEMED else None, width=6)
+    d.rounded_rectangle([350, 510, 730, 625], 57, fill=color, outline=TXT if THEMED else None, width=6)
     lum = 0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]
-    d.text((540, 595), f'{fr(m["rating"])}/10', font=_f(FB, 88), fill=(14, 20, 36) if lum > 140 else (255, 255, 255), anchor="mm")
+    d.text((540, 568), fr(m["rating"]), font=_f(FB, 96), fill=(14, 20, 36) if lum > 140 else (255, 255, 255), anchor="mm")
 
     # statistiques clés : grille 2x2
     stats = []
@@ -153,10 +166,11 @@ def match_card(m, date_str, path, use_logos=False, bg=None):
         stats.append(("CORNERS", f'{round(m["corners_home"])} – {round(m["corners_away"])}'))
     for i, (lab, val) in enumerate(stats[:4]):
         x0 = 60 if i % 2 == 0 else 555
-        y0 = 725 if i < 2 else 855
-        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 115], 22, fill=CARD)
-        d.text((x0 + 232, y0 + 32), lab, font=_f(FR, 22), fill=SUB, anchor="mm")
-        d.text((x0 + 232, y0 + 77), val, font=_f(FB, 40), fill=TXT, anchor="mm")
+        y0 = 670 if i < 2 else 785
+        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 100], 22, fill=CARD)
+        d.text((x0 + 232, y0 + 28), lab, font=_f(FR, 22), fill=SUB, anchor="mm")
+        d.text((x0 + 232, y0 + 69), val, font=_f(FB, 38), fill=TXT, anchor="mm")
+    _paste_logo(img)
     p = OUT / path
     img.save(p)
     return str(p)
@@ -236,7 +250,7 @@ def player_card(m, date_str, path, use_logos=False, bg=None):
     _, pcolor, _ = tier(bp["rating"])
     img = Image.new("RGB", (S, S), BG)
     d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, S, 14], fill=mcolor)
+    d.rectangle([0, 0, S, 14], fill=pcolor)
     d.text((60, 62), "MEILLEUR JOUEUR DU MATCH", font=_f(FB, 28), fill=SUB)
     d.text((S - 60, 62), f'{m["home"]} {m["score_home"]}-{m["score_away"]} {m["away"]}',
            font=_fit(d, f'{m["home"]} {m["score_home"]}-{m["score_away"]} {m["away"]}', FR, 26, 420), fill=SUB, anchor="ra")
@@ -263,10 +277,11 @@ def player_card(m, date_str, path, use_logos=False, bg=None):
     lines = player_stat_lines(bp.get("stats", {}))[:16]
     for i, (lab, val) in enumerate(lines):
         x0 = 60 if i % 2 == 0 else 555
-        y0 = 450 + (i // 2) * 70
-        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 60], 16, fill=CARD)
-        d.text((x0 + 20, y0 + 30), lab, font=_fit(d, lab, FR, 23, 270), fill=SUB, anchor="lm")
-        d.text((x0 + 445, y0 + 30), val, font=_f(FB, 30), fill=TXT, anchor="rm")
+        y0 = 430 + (i // 2) * 62
+        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 52], 14, fill=CARD)
+        d.text((x0 + 20, y0 + 26), lab, font=_fit(d, lab, FR, 22, 270), fill=SUB, anchor="lm")
+        d.text((x0 + 445, y0 + 26), val, font=_f(FB, 28), fill=TXT, anchor="rm")
+    _paste_logo(img, 100)
     p = OUT / path
     img.save(p)
     return str(p)

@@ -2,7 +2,7 @@
   1) la carte du match (logos, score, note, stats)   2) le meilleur joueur du match et toutes ses stats.
 Écrit published/<date>/ (images, manifest.json) et published/latest.txt (chemin du manifest).
 Ordre de publication : du moins bien noté au mieux noté (le meilleur match finit en haut du profil)."""
-import json, pathlib, datetime
+import json, os, pathlib, datetime
 from sources import fetch_finished_matches
 from rating import rate_all, tier
 from images import match_card, player_card, fr
@@ -16,11 +16,12 @@ def main():
     (ROOT / "published" / "latest.txt").unlink(missing_ok=True)  # évite de republier la veille
     cfg = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
     leagues = cfg["leagues"]
-    day = datetime.date.today()
+    env_day = os.getenv("MATCH_DATE", "").strip()  # test : traiter les matchs d'une autre date (AAAA-MM-JJ)
+    day = datetime.date.fromisoformat(env_day) if env_day else datetime.date.today()
     date_fr = day.strftime("%d/%m/%Y")
     real = not cfg.get("sample_mode")
 
-    ms = rate_all([m for m in fetch_finished_matches(cfg) if m["league"] in leagues])[: cfg["max_matches"]]
+    ms = rate_all([m for m in fetch_finished_matches(cfg, day.isoformat()) if m["league"] in leagues])[: cfg["max_matches"]]
     if not ms:
         print("Aucun match terminé à noter."); return
 
@@ -37,7 +38,7 @@ def main():
             debug[f"{m['home']}-{m['away']}"] = m["best_player"]  # pour vérifier les stats reçues
         _, _, emoji = tier(m["rating"])
         caption = (f"{emoji} {m['home']} {m['score_home']}-{m['score_away']} {m['away']}\n"
-                   f"Note : {fr(m['rating'])}/10\n"
+                   f"Note : {fr(m['rating'])}\n"
                    + (f"⭐ Meilleur joueur : {m['best_player']['name']} ({fr(m['best_player']['rating'])})\n"
                       if m.get("best_player") else "")
                    + f"\n{cfg['hashtags']} {leagues[m['league']]['tag']}")
