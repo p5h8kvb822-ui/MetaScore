@@ -1,54 +1,54 @@
 {
- "Italy-Türkiye": {
-  "id": 331046,
-  "name": "Issa Doumbia",
-  "photo": "https://media.api-sports.io/football/players/331046.png",
+ "France-Belgium": {
+  "id": 19617,
+  "name": "Michael Olise",
+  "photo": "https://media.api-sports.io/football/players/19617.png",
   "position": "M",
-  "shirt": 15,
-  "team": "Italy",
-  "rating": 8.3,
+  "shirt": 11,
+  "team": "France",
+  "rating": 10.0,
   "stats": {
    "games": {
-    "minutes": 90,
-    "number": 15,
+    "minutes": 30,
+    "number": 11,
     "position": "M",
-    "rating": "8.3",
+    "rating": "10",
     "captain": false,
-    "substitute": false
+    "substitute": true
    },
-   "offsides": 1,
+   "offsides": null,
    "shots": {
-    "total": 2,
-    "on": 2
+    "total": 3,
+    "on": 3
    },
    "goals": {
-    "total": null,
+    "total": 2,
     "conceded": 0,
-    "assists": 0,
+    "assists": 1,
     "saves": null
    },
    "passes": {
-    "total": 34,
-    "key": 1,
-    "accuracy": "32"
+    "total": 32,
+    "key": 2,
+    "accuracy": "26"
    },
    "tackles": {
-    "total": 1,
+    "total": null,
     "blocks": null,
     "interceptions": null
    },
    "duels": {
-    "total": 10,
-    "won": 8
+    "total": 2,
+    "won": null
    },
    "dribbles": {
-    "attempts": 3,
-    "success": 3,
+    "attempts": 2,
+    "success": null,
     "past": null
    },
    "fouls": {
-    "drawn": 2,
-    "committed": 1
+    "drawn": null,
+    "committed": null
    },
    "cards": {
     "yellow": 0,
@@ -63,22 +63,22 @@
    }
   },
   "profile": {
-   "id": 331046,
-   "name": "I. Doumbia",
-   "firstname": "Issa",
-   "lastname": "Doumbia",
-   "age": 22,
+   "id": 19617,
+   "name": "M. Olise",
+   "firstname": "Michael Akpovie",
+   "lastname": "Olise",
+   "age": 24,
    "birth": {
-    "date": "2003-10-16",
-    "place": null,
-    "country": "Italy"
+    "date": "2001-12-12",
+    "place": "London",
+    "country": "England"
    },
-   "nationality": "Italy",
-   "height": "187",
-   "weight": "79",
-   "number": 15,
+   "nationality": "France",
+   "height": "184",
+   "weight": "76",
+   "number": 11,
    "position": "Midfielder",
-   "photo": "https://media.api-sports.io/football/players/331046.png"
+   "photo": "https://media.api-sports.io/football/players/19617.png"
   }
  }
 }
