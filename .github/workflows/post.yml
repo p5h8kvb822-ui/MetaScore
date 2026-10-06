@@ -3,6 +3,19 @@ on:
   schedule:
     - cron: "30 23 * * *"
   workflow_dispatch:
+    inputs:
+      date:
+        description: "Date des matchs (AAAA-MM-JJ). Vide = aujourd'hui"
+        required: false
+        default: ""
+      team:
+        description: "Test : nom d'une équipe du match (ex. Lyon), toutes compétitions. Vide = tes compétitions"
+        required: false
+        default: ""
+      publish:
+        description: "Publier sur Instagram ? (true ou false)"
+        required: false
+        default: "false"
 permissions:
   contents: write
 jobs:
@@ -17,6 +30,8 @@ jobs:
       - name: Générer les images
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          MATCH_DATE: ${{ github.event.inputs.date }}
+          MATCH_TEAM: ${{ github.event.inputs.team }}
         run: python main.py
       - name: Enregistrer les images dans le dépôt
         run: |
@@ -26,10 +41,13 @@ jobs:
           git commit -m "images du jour" || echo "rien à publier"
           git push
       - name: Publier sur Instagram
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.publish == 'true' }}
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
         run: |
           [ -f published/latest.txt ] || exit 0
           MANIFEST=$(cat published/latest.txt)
           DIR=$(dirname "$MANIFEST")
-          export IMAGE_BASE_UR
+          export IMAGE_BASE_URL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_REF_NAME}/${DIR}"
+          sleep 45
+          python post_instagram.py "$MANIFEST"
