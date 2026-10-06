@@ -21,7 +21,9 @@ def main():
     date_fr = day.strftime("%d/%m/%Y")
     real = not cfg.get("sample_mode")
 
-    ms = rate_all([m for m in fetch_finished_matches(cfg, day.isoformat()) if m["league"] in leagues])[: cfg["max_matches"]]
+    team = os.getenv("MATCH_TEAM", "").strip()  # test : un match précis (nom d'équipe), toutes compétitions
+    found = fetch_finished_matches(cfg, day.isoformat(), team or None)
+    ms = rate_all([m for m in found if team or m["league"] in leagues])[: cfg["max_matches"]]
     if not ms:
         print("Aucun match terminé à noter."); return
 
@@ -41,7 +43,7 @@ def main():
                    f"Note : {fr(m['rating'])}\n"
                    + (f"⭐ Meilleur joueur : {m['best_player']['name']} ({fr(m['best_player']['rating'])})\n"
                       if m.get("best_player") else "")
-                   + f"\n{cfg['hashtags']} {leagues[m['league']]['tag']}")
+                   + f"\n{cfg['hashtags']} {leagues.get(m['league'], {}).get('tag', '')}".rstrip())
         posts.append({"images": files, "caption": caption})
     posts.reverse()  # moins bien noté d'abord, meilleur en dernier
 

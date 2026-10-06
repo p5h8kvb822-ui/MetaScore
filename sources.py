@@ -1,7 +1,7 @@
 """Source de données : API-Football (api-sports.io) -> fetch_finished_matches.
 Avec "sample_mode": true dans config.json, on lit sample_finished.json (aucun accès réseau).
 Clé à fournir : variable d'environnement API_FOOTBALL_KEY."""
-import json, os, pathlib, datetime, time
+import json, os, pathlib, datetime, time, unicodedata
 import requests
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -28,6 +28,11 @@ def _get(path, interval=7, **params):
     if data.get("errors"):  # l'API répond 200 même pour un refus de plan / de saison
         raise RuntimeError(f"API-Football : {data['errors']}")
     return data.get("response", [])
+
+
+def _fold(t):
+    """minuscules sans accents, pour chercher une équipe par son nom."""
+    return "".join(c for c in unicodedata.normalize("NFKD", t.lower()) if not unicodedata.combining(c))
 
 
 def _num(v):
@@ -90,20 +95,32 @@ def normalize(fx):
     }
 
 
-def fetch_finished_matches(cfg, day=None):
+def fetch_finished_matches(cfg, day=None, team=None):
+    """Matchs terminés d'un jour. Sans `team` : seulement tes compétitions.
+    Avec `team` (ex. "Lyon") : tous les matchs terminés de ce jour où joue une équipe dont le nom contient
+    ce texte, quelle que soit la compétition (pour tester sur un match précis)."""
     if cfg.get("sample_mode"):
         return _sample("sample_finished.json")
     day = day or datetime.date.today().isoformat()
     gap = cfg.get("api_min_interval_seconds", 7)
     names = {c["api_football_id"]: name for name, c in cfg["leagues"].items()}
     todays = _get("fixtures", gap, date=day)  # 1 appel : tous les matchs du jour
-    ids = [f["fixture"]["id"] for f in todays
-           if f["league"]["id"] in names and f["fixture"]["status"]["short"] in FINISHED]
-    print(f"{len(todays)} matchs ce jour, {len(ids)} terminés dans tes compétitions")
+    key = _fold(team) if team else None
+
+    def wanted(f):
+        if f["fixture"]["status"]["short"] not in FINISHED:
+            return False
+        if key:
+            return key in _fold(f["teams"]["home"]["name"] + " " + f["teams"]["away"]["name"])
+        return f["league"]["id"] in names
+
+    ids = [f["fixture"]["id"] for f in todays if wanted(f)]
+    print(f"{len(todays)} matchs ce jour, {len(ids)} terminés" + (f" avec « {team} »" if team else " dans tes compétitions"))
     out = []
-    for i in range(0, len(ids[: cfg["max_matches"]]), 20):  # détails (stats, joueurs, événements) par lots de 20
+    ids = ids[: cfg["max_matches"]]
+    for i in range(0, len(ids), 20):  # détails (stats, joueurs, événements) par lots de 20
         for fx in _get("fixtures", gap, ids="-".join(map(str, ids[i:i + 20]))):
             m = normalize(fx)
-            m["league"] = names[fx["league"]["id"]]
+            m["league"] = names.get(fx["league"]["id"], fx["league"]["name"])
             out.append(m)
     return out
