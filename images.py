@@ -87,19 +87,15 @@ def _league_logo(img, d, m, x, y, size, use_logos):
 
 
 def _footer_logo(img):
-    """Ton logo dans une pastille bleu nuit (il a du texte blanc : invisible sur fond blanc)."""
+    """Ton logo (version claire, fond transparent) centré en bas de l'image."""
     if not LOGO_PATH.exists():
         print("ATTENTION : logo.png introuvable à côté de images.py : images publiées sans logo")
         return
-    d = ImageDraw.Draw(img)
-    cw, ch = 340, 130
-    x0, y0 = (W - cw) // 2, H - ch - 22
-    d.rounded_rectangle([x0, y0, x0 + cw, y0 + ch], 30, fill=NAVY)
     logo = Image.open(LOGO_PATH).convert("RGBA")
-    h = ch - 20
+    h = 132
     w = round(logo.width * h / logo.height)
     logo = logo.resize((w, h), Image.LANCZOS)
-    img.paste(logo, (x0 + (cw - w) // 2, y0 + 10), logo)
+    img.paste(logo, ((W - w) // 2, H - h - 22), logo)
 
 
 def _gauge_color(v):
@@ -111,12 +107,12 @@ def _gauge_color(v):
     return GAUGE[-1][1]
 
 
-def draw_gauge(img, d, rating, y_title):
+def draw_gauge(img, d, rating, y_title, title="NOTE DU MATCH", compact=False):
     """Jauge de couleur 1 -> 10 avec un curseur (bulle + repère) sur la note obtenue."""
     x0, x1, bh = 70, 1010, 30
     _, color, _ = tier(rating)
-    d.text((W // 2, y_title), "NOTE DU MATCH", font=_f(FB, 26), fill=GRAY, anchor="mm")
-    y_bar = y_title + 115
+    d.text((W // 2, y_title), title, font=_f(FB, 26), fill=GRAY, anchor="mm")
+    y_bar = y_title + (100 if compact else 115)
     bar = Image.new("RGB", (x1 - x0, bh))
     bd = ImageDraw.Draw(bar)
     for x in range(x1 - x0):
@@ -133,12 +129,12 @@ def draw_gauge(img, d, rating, y_title):
     cy = y_bar + bh // 2
     d.ellipse([cx - 24, cy - 24, cx + 24, cy + 24], fill=WHITE, outline=NAVY, width=6)
     d.ellipse([cx - 9, cy - 9, cx + 9, cy + 9], fill=color)
-    bw_, bh_ = 128, 64
+    bw_, bh_ = (116, 56) if compact else (128, 64)
     by = y_bar - 30 - bh_
     d.rounded_rectangle([cx - bw_ // 2, by, cx + bw_ // 2, by + bh_], 22, fill=color)
     d.polygon([(cx - 14, by + bh_ - 1), (cx + 14, by + bh_ - 1), (cx, by + bh_ + 16)], fill=color)
-    d.text((cx, by + bh_ // 2), fr(rating), font=_f(FB, 42), fill=NAVY if _lum(color) > 140 else WHITE, anchor="mm")
-    return y_bar + bh + 50
+    d.text((cx, by + bh_ // 2), fr(rating), font=_f(FB, 38 if compact else 42), fill=NAVY if _lum(color) > 140 else WHITE, anchor="mm")
+    return y_bar + bh + (44 if compact else 50)
 
 
 # ------------------------------------------------------------------ stats d'équipe (toutes celles de l'API)
@@ -367,7 +363,8 @@ def player_card(m, date_str, path, use_logos=False):
     OUT.mkdir(exist_ok=True)
     bp = m["best_player"]
     prof = bp.get("profile") or {}
-    _, pcolor, _ = tier(bp["rating"])
+    rating = round(bp["rating"], 1)
+    _, pcolor, _ = tier(rating)
     img = Image.new("RGB", (W, H), WHITE)
     d = ImageDraw.Draw(img)
     d.rectangle([0, 0, W, 18], fill=pcolor)
@@ -377,8 +374,8 @@ def player_card(m, date_str, path, use_logos=False):
     line = f'{m["home"]} {m["score_home"]}-{m["score_away"]} {m["away"]}'
     d.text((W - 60, 74), line, font=_fit(d, line, FR, 24, 380), fill=GRAY, anchor="rm")
 
-    # photo, nom, club, note
-    cx, cy, r = 165, 255, 105
+    # photo, nom, club
+    cx, cy, r = 150, 205, 82
     photo = get_image(bp.get("photo")) if use_logos else None
     if photo:
         size = 2 * r
@@ -391,16 +388,15 @@ def player_card(m, date_str, path, use_logos=False):
         mask = Image.new("L", (size, size), 0)
         ImageDraw.Draw(mask).ellipse([0, 0, size, size], fill=255)
         img.paste(base.convert("RGB"), (cx - r, cy - r), mask)
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=pcolor, width=6)
     else:
         _placeholder(d, bp["name"], cx, cy, r)
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=pcolor, width=6)
-    d.text((300, 205), bp["name"], font=_fit(d, bp["name"], FB, 58, W - 300 - 50), fill=NAVY, anchor="lm")
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=pcolor, width=6)
+    d.text((270, 178), bp["name"], font=_fit(d, bp["name"], FB, 56, W - 270 - 50), fill=NAVY, anchor="lm")
     info = " · ".join(x for x in [bp["team"], POS_FR.get(bp.get("position"))] if x)
-    d.text((300, 262), info, font=_fit(d, info, FR, 28, W - 300 - 50), fill=GRAY, anchor="lm")
-    d.rounded_rectangle([300, 300, 480, 380], 40, fill=pcolor)
-    d.text((390, 340), fr(round(bp["rating"], 1)), font=_f(FB, 56), fill=NAVY if _lum(pcolor) > 140 else WHITE, anchor="mm")
-    d.text((500, 340), "NOTE DU JOUEUR", font=_f(FB, 22), fill=GRAY, anchor="lm")
+    d.text((270, 236), info, font=_fit(d, info, FR, 28, W - 270 - 50), fill=GRAY, anchor="lm")
+
+    # jauge de la note du joueur (même jauge que pour le match)
+    y = draw_gauge(img, d, rating, 335, title="NOTE DU JOUEUR", compact=True)
 
     # identité : naissance, nationalité, taille, maillot
     birth = prof.get("birth", {}).get("date") if isinstance(prof.get("birth"), dict) else None
@@ -420,26 +416,32 @@ def player_card(m, date_str, path, use_logos=False):
     shirt_txt = (f'{"Sélection" if m.get("is_national") else "Club"} n°{shirt}') if shirt else "—"
     chips = [("NÉ(E) LE", birth_txt, None), ("NATIONALITÉ", nat or "—", nat), ("TAILLE", height_txt, None),
              ("NUMÉRO DE MAILLOT", shirt_txt, None)]
+    y_chips = y + 14
     for i, (lab, val, flag_nat) in enumerate(chips):
         x0 = 60 if i % 2 == 0 else 555
-        y0 = 425 + (i // 2) * 112
-        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 98], 20, fill=LIGHT)
-        d.text((x0 + 24, y0 + 28), lab, font=_f(FB, 20), fill=GRAY, anchor="lm")
-        tx = x0 + 24
+        y0 = y_chips + (i // 2) * 96
+        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 84], 18, fill=LIGHT)
+        d.text((x0 + 22, y0 + 22), lab, font=_f(FB, 18), fill=GRAY, anchor="lm")
+        tx = x0 + 22
         if flag_nat:
-            draw_flag(img, d, flag_nat, tx, y0 + 52, 54, 36, use_logos)
-            tx += 70
-        d.text((tx, y0 + 70), val, font=_fit(d, val, FB, 30, x0 + 465 - 20 - tx), fill=NAVY, anchor="lm")
+            draw_flag(img, d, flag_nat, tx, y0 + 40, 48, 32, use_logos)
+            tx += 62
+        d.text((tx, y0 + 58), val, font=_fit(d, val, FB, 28, x0 + 465 - 18 - tx), fill=NAVY, anchor="lm")
 
     # toutes les stats du match
-    d.text((W // 2, 685), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
-    rows = player_stat_rows(bp.get("stats", {}), bp.get("position"))[:26]
-    for i, (lab, val) in enumerate(rows):
+    y_stats = y_chips + 2 * 96 + 16
+    d.text((W // 2, y_stats + 12), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    rows = player_stat_rows(bp.get("stats", {}), bp.get("position"))
+    avail = (H - 22 - 132 - 12) - (y_stats + 38)      # place avant le logo
+    max_rows = max(2, (avail // 40) * 2)
+    for i, (lab, val) in enumerate(rows[:max_rows]):
         x0 = 60 if i % 2 == 0 else 555
-        y0 = 712 + (i // 2) * 42
-        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 36], 12, fill=LIGHT)
-        d.text((x0 + 16, y0 + 18), lab, font=_fit(d, lab, FR, 22, 290), fill=NAVY, anchor="lm")
-        d.text((x0 + 449, y0 + 18), val, font=_f(FB, 25), fill=NAVY, anchor="rm")
+        y0 = y_stats + 38 + (i // 2) * 40
+        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 34], 12, fill=LIGHT)
+        d.text((x0 + 16, y0 + 17), lab, font=_fit(d, lab, FR, 22, 290), fill=NAVY, anchor="lm")
+        d.text((x0 + 449, y0 + 17), val, font=_f(FB, 25), fill=NAVY, anchor="rm")
+    if len(rows) > max_rows:
+        print(f"  note : {len(rows) - max_rows} stat(s) du joueur non affichées (manque de place)")
     _footer_logo(img)
     p = OUT / path
     img.save(p)
