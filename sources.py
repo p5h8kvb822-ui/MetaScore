@@ -115,11 +115,19 @@ def fetch_finished_matches(cfg, day=None, team=None):
         return f["league"]["id"] in names
 
     ids = [f["fixture"]["id"] for f in todays if wanted(f)]
+    print(f"Date utilisée : {day}")
     print(f"{len(todays)} matchs ce jour, {len(ids)} terminés" + (f" avec « {team} »" if team else " dans tes compétitions"))
+    if key and not ids:  # aide au diagnostic : on montre ce que l'API a trouvé avec ce nom, quel que soit le statut
+        near = [f for f in todays if key in _fold(f["teams"]["home"]["name"] + " " + f["teams"]["away"]["name"])]
+        if near:
+            for f in near[:10]:
+                print(f"  trouvé : {f['teams']['home']['name']} - {f['teams']['away']['name']} "
+                      f"({f['league']['name']}) statut = {f['fixture']['status']['short']} ({f['fixture']['status']['long']})")
+        else:
+            print(f"  aucun match avec « {team} » dans les {len(todays)} matchs de ce jour : essaie l'autre équipe ou vérifie la date")
     out = []
-    ids = ids[: cfg["max_matches"]]
-    for i in range(0, len(ids), 20):  # détails (stats, joueurs, événements) par lots de 20
-        for fx in _get("fixtures", gap, ids="-".join(map(str, ids[i:i + 20]))):
+    for fid in ids[: cfg["max_matches"]]:  # 1 appel par match (le paramètre « ids » est refusé par le plan gratuit)
+        for fx in _get("fixtures", gap, id=fid):  # stats, joueurs et événements du match
             m = normalize(fx)
             m["league"] = names.get(fx["league"]["id"], fx["league"]["name"])
             out.append(m)
