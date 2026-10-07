@@ -1,0 +1,85 @@
+{
+ "Croatie-Espagne": {
+  "id": 47311,
+  "name": "Mikel Merino",
+  "photo": "https://media.api-sports.io/football/players/47311.png",
+  "position": "M",
+  "shirt": 6,
+  "team": "Espagne",
+  "team_logo": "https://media.api-sports.io/football/teams/9.png",
+  "rating": 8.93,
+  "stats": {
+   "games": {
+    "minutes": 45,
+    "number": 6,
+    "position": "M",
+    "rating": "8.93",
+    "captain": false,
+    "substitute": false
+   },
+   "offsides": 0,
+   "shots": {
+    "total": 2,
+    "on": 2
+   },
+   "goals": {
+    "total": 2,
+    "conceded": null,
+    "assists": 0,
+    "saves": 0
+   },
+   "passes": {
+    "total": 19,
+    "key": 0,
+    "accuracy": "14"
+   },
+   "tackles": {
+    "total": 0,
+    "blocks": 0,
+    "interceptions": 0
+   },
+   "duels": {
+    "total": 3,
+    "won": 1
+   },
+   "dribbles": {
+    "attempts": 0,
+    "success": 0,
+    "past": null
+   },
+   "fouls": {
+    "drawn": 1,
+    "committed": 0
+   },
+   "cards": {
+    "yellow": 0,
+    "red": 0
+   },
+   "penalty": {
+    "won": null,
+    "commited": null,
+    "scored": 0,
+    "missed": null,
+    "saved": null
+   }
+  },
+  "profile": {
+   "id": 47311,
+   "name": "Mikel Merino",
+   "firstname": "Mikel",
+   "lastname": "Merino Zazón",
+   "age": 30,
+   "birth": {
+    "date": "1996-06-22",
+    "place": "Pamplona",
+    "country": "Spain"
+   },
+   "nationality": "Spain",
+   "height": "189",
+   "weight": "83",
+   "number": 6,
+   "position": "Midfielder",
+   "photo": "https://media.api-sports.io/football/players/47311.png"
+  }
+ }
+}
