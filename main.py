@@ -47,7 +47,7 @@ def main():
         _, _, emoji = tier(m["rating"])
         caption = (f"{emoji} {m['home']} {m['score_home']}-{m['score_away']} {m['away']}\n"
                    f"Note : {fr(m['rating'])}\n"
-                   + (f"⭐ Meilleur joueur : {m['best_player']['name']} ({fr(round(m['best_player']['rating'], 1))})\n"
+                   + (f"⭐ Homme du match : {m['best_player']['name']} ({fr(round(m['best_player']['rating'], 1))})\n"
                       if m.get("best_player") else "")
                    + f"\n{cfg['hashtags']} {tag}".rstrip())
         posts.append({"images": files, "caption": caption})

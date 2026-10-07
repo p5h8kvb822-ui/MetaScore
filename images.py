@@ -224,13 +224,14 @@ def match_card(m, date_str, path, use_logos=False):
     d.text((215, 395), m["home"], font=_fit(d, m["home"], FB, 38, 380), fill=NAVY, anchor="mm")
     d.text((865, 395), m["away"], font=_fit(d, m["away"], FB, 38, 380), fill=NAVY, anchor="mm")
 
-    # pastille de couleur avec la note du match
-    d.rounded_rectangle([350, 445, 730, 560], 57, fill=color)
-    d.text((540, 503), fr(m["rating"]), font=_f(FB, 92), fill=NAVY if _lum(color) > 140 else WHITE, anchor="mm")
+    # pastille de couleur avec la note du match, libellé au-dessus
+    d.text((540, 440), "NOTE DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    d.rounded_rectangle([350, 462, 730, 577], 57, fill=color)
+    d.text((540, 520), fr(m["rating"]), font=_f(FB, 92), fill=NAVY if _lum(color) > 140 else WHITE, anchor="mm")
 
-    d.text((W // 2, 612), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    d.text((W // 2, 628), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
     rows = team_stat_rows(m)[:18]
-    row_h, y_rows = 34, 640
+    row_h, y_rows = 33, 654
     draw_team_rows(d, rows, y_rows, row_h)
     y_end = y_rows + len(rows) * row_h + 6
     d.rounded_rectangle([60, y_end + 4, 76, y_end + 16], 4, fill=HOME_C)
@@ -374,7 +375,7 @@ def player_card(m, date_str, path, use_logos=False):
     d.rectangle([0, 0, W, 18], fill=pcolor)
 
     _league_logo(img, d, m, 60, 46, 56, use_logos)
-    d.text((132, 74), "MEILLEUR JOUEUR DU MATCH", font=_f(FB, 28), fill=GRAY, anchor="lm")
+    d.text((132, 74), "HOMME DU MATCH", font=_f(FB, 28), fill=GRAY, anchor="lm")
     line = f'{m["home"]} {m["score_home"]}-{m["score_away"]} {m["away"]}'
     d.text((W - 60, 74), line, font=_fit(d, line, FR, 24, 380), fill=GRAY, anchor="rm")
 
@@ -408,13 +409,14 @@ def player_card(m, date_str, path, use_logos=False):
     _crest(img, d, bp.get("team") or "?", club_logo, tx + 34, 275, 34, use_logos)
 
     # pastille de couleur avec la note du joueur : même taille, même endroit que sur la fiche du match
-    d.rounded_rectangle([350, 445, 730, 560], 57, fill=pcolor)
-    d.text((540, 503), fr(rating), font=_f(FB, 92), fill=NAVY if _lum(pcolor) > 140 else WHITE, anchor="mm")
+    d.text((540, 440), "NOTE DU JOUEUR", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    d.rounded_rectangle([350, 462, 730, 577], 57, fill=pcolor)
+    d.text((540, 520), fr(rating), font=_f(FB, 92), fill=NAVY if _lum(pcolor) > 140 else WHITE, anchor="mm")
 
     # toutes les stats du match
-    d.text((W // 2, 612), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    d.text((W // 2, 628), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
     rows = player_stat_rows(bp.get("stats", {}), bp.get("position"))
-    pitch, top0 = 46, 640
+    pitch, top0 = 46, 654
     avail = (H - 22 - 132 - 14) - top0                # place avant le logo
     max_rows = max(2, (avail // pitch) * 2)
     for i, (lab, val) in enumerate(rows[:max_rows]):
