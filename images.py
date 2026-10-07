@@ -2,6 +2,7 @@
 1) match_card  : compétition, équipes, score, jauge de note avec curseur, toutes les stats d'équipe
 2) player_card : meilleur joueur (identité + toutes ses stats)"""
 import pathlib, io, hashlib, colorsys, datetime
+from noms_fr import fr_pays
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from rating import tier
@@ -223,16 +224,19 @@ def match_card(m, date_str, path, use_logos=False):
     d.text((215, 395), m["home"], font=_fit(d, m["home"], FB, 38, 380), fill=NAVY, anchor="mm")
     d.text((865, 395), m["away"], font=_fit(d, m["away"], FB, 38, 380), fill=NAVY, anchor="mm")
 
-    y = draw_gauge(img, d, m["rating"], 440)
+    # pastille de couleur avec la note du match
+    d.rounded_rectangle([350, 445, 730, 560], 57, fill=color)
+    d.text((540, 503), fr(m["rating"]), font=_f(FB, 92), fill=NAVY if _lum(color) > 140 else WHITE, anchor="mm")
 
-    d.text((W // 2, y + 22), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
-    rows = team_stat_rows(m)[:16]
-    draw_team_rows(d, rows, y + 50)
-    # légende des couleurs
-    d.rounded_rectangle([60, y + 50 + 16 * 36 + 8, 76, y + 50 + 16 * 36 + 20], 4, fill=HOME_C)
-    d.text((86, y + 50 + 16 * 36 + 14), m["home"], font=_fit(d, m["home"], FR, 20, 330), fill=GRAY, anchor="lm")
-    d.rounded_rectangle([1004, y + 50 + 16 * 36 + 8, 1020, y + 50 + 16 * 36 + 20], 4, fill=AWAY_C)
-    d.text((994, y + 50 + 16 * 36 + 14), m["away"], font=_fit(d, m["away"], FR, 20, 330), fill=GRAY, anchor="rm")
+    d.text((W // 2, 612), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    rows = team_stat_rows(m)[:18]
+    row_h, y_rows = 34, 640
+    draw_team_rows(d, rows, y_rows, row_h)
+    y_end = y_rows + len(rows) * row_h + 6
+    d.rounded_rectangle([60, y_end + 4, 76, y_end + 16], 4, fill=HOME_C)
+    d.text((86, y_end + 10), m["home"], font=_fit(d, m["home"], FR, 20, 330), fill=GRAY, anchor="lm")
+    d.rounded_rectangle([1004, y_end + 4, 1020, y_end + 16], 4, fill=AWAY_C)
+    d.text((994, y_end + 10), m["away"], font=_fit(d, m["away"], FR, 20, 330), fill=GRAY, anchor="rm")
     _footer_logo(img)
     p = OUT / path
     img.save(p)
@@ -374,8 +378,8 @@ def player_card(m, date_str, path, use_logos=False):
     line = f'{m["home"]} {m["score_home"]}-{m["score_away"]} {m["away"]}'
     d.text((W - 60, 74), line, font=_fit(d, line, FR, 24, 380), fill=GRAY, anchor="rm")
 
-    # photo, nom, club
-    cx, cy, r = 150, 205, 82
+    # photo
+    cx, cy, r = 170, 262, 110
     photo = get_image(bp.get("photo")) if use_logos else None
     if photo:
         size = 2 * r
@@ -391,57 +395,96 @@ def player_card(m, date_str, path, use_logos=False):
     else:
         _placeholder(d, bp["name"], cx, cy, r)
     d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=pcolor, width=6)
-    d.text((270, 178), bp["name"], font=_fit(d, bp["name"], FB, 56, W - 270 - 50), fill=NAVY, anchor="lm")
-    info = " · ".join(x for x in [bp["team"], POS_FR.get(bp.get("position"))] if x)
-    d.text((270, 236), info, font=_fit(d, info, FR, 28, W - 270 - 50), fill=GRAY, anchor="lm")
 
-    # jauge de la note du joueur (même jauge que pour le match)
-    y = draw_gauge(img, d, rating, 335, title="NOTE DU JOUEUR", compact=True)
-
-    # identité : naissance, nationalité, taille, maillot
-    birth = prof.get("birth", {}).get("date") if isinstance(prof.get("birth"), dict) else None
-    age = _age(birth) if birth else prof.get("age")
-    if birth:
-        try:
-            birth_txt = datetime.date.fromisoformat(birth).strftime("%d/%m/%Y") + (f" · {age} ans" if age else "")
-        except ValueError:
-            birth_txt = birth
-    else:
-        birth_txt = "—"
+    # nom, puis drapeau de sa nationalité et logo de son club en dessous
+    x_txt = 320
+    d.text((x_txt, 205), bp["name"], font=_fit(d, bp["name"], FB, 60, W - x_txt - 50), fill=NAVY, anchor="lm")
+    tx = x_txt
     nat = prof.get("nationality")
-    h_cm = "".join(c for c in str(prof.get("height") or "") if c.isdigit())
-    w_kg = "".join(c for c in str(prof.get("weight") or "") if c.isdigit())
-    height_txt = (f"{int(h_cm) / 100:.2f}".replace(".", ",") + " m" if h_cm else "—") + (f" · {w_kg} kg" if w_kg else "")
-    shirt = bp.get("shirt")
-    shirt_txt = (f'{"Sélection" if m.get("is_national") else "Club"} n°{shirt}') if shirt else "—"
-    chips = [("NÉ(E) LE", birth_txt, None), ("NATIONALITÉ", nat or "—", nat), ("TAILLE", height_txt, None),
-             ("NUMÉRO DE MAILLOT", shirt_txt, None)]
-    y_chips = y + 14
-    for i, (lab, val, flag_nat) in enumerate(chips):
-        x0 = 60 if i % 2 == 0 else 555
-        y0 = y_chips + (i // 2) * 96
-        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 84], 18, fill=LIGHT)
-        d.text((x0 + 22, y0 + 22), lab, font=_f(FB, 18), fill=GRAY, anchor="lm")
-        tx = x0 + 22
-        if flag_nat:
-            draw_flag(img, d, flag_nat, tx, y0 + 40, 48, 32, use_logos)
-            tx += 62
-        d.text((tx, y0 + 58), val, font=_fit(d, val, FB, 28, x0 + 465 - 18 - tx), fill=NAVY, anchor="lm")
+    if nat:
+        draw_flag(img, d, nat, tx, 252, 66, 44, use_logos)
+        tx += 66 + 24
+    club_logo = bp.get("team_logo") or (m.get("home_logo") if bp.get("team") == m["home"] else m.get("away_logo"))
+    _crest(img, d, bp.get("team") or "?", club_logo, tx + 34, 275, 34, use_logos)
+
+    # pastille de couleur avec la note du joueur : même taille, même endroit que sur la fiche du match
+    d.rounded_rectangle([350, 445, 730, 560], 57, fill=pcolor)
+    d.text((540, 503), fr(rating), font=_f(FB, 92), fill=NAVY if _lum(pcolor) > 140 else WHITE, anchor="mm")
 
     # toutes les stats du match
-    y_stats = y_chips + 2 * 96 + 16
-    d.text((W // 2, y_stats + 12), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
+    d.text((W // 2, 612), "STATISTIQUES DU MATCH", font=_f(FB, 24), fill=GRAY, anchor="mm")
     rows = player_stat_rows(bp.get("stats", {}), bp.get("position"))
-    avail = (H - 22 - 132 - 12) - (y_stats + 38)      # place avant le logo
-    max_rows = max(2, (avail // 40) * 2)
+    pitch, top0 = 46, 640
+    avail = (H - 22 - 132 - 14) - top0                # place avant le logo
+    max_rows = max(2, (avail // pitch) * 2)
     for i, (lab, val) in enumerate(rows[:max_rows]):
         x0 = 60 if i % 2 == 0 else 555
-        y0 = y_stats + 38 + (i // 2) * 40
-        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 34], 12, fill=LIGHT)
-        d.text((x0 + 16, y0 + 17), lab, font=_fit(d, lab, FR, 22, 290), fill=NAVY, anchor="lm")
-        d.text((x0 + 449, y0 + 17), val, font=_f(FB, 25), fill=NAVY, anchor="rm")
+        y0 = top0 + (i // 2) * pitch
+        d.rounded_rectangle([x0, y0, x0 + 465, y0 + 40], 13, fill=LIGHT)
+        d.text((x0 + 18, y0 + 20), lab, font=_fit(d, lab, FR, 24, 300), fill=NAVY, anchor="lm")
+        d.text((x0 + 447, y0 + 20), val, font=_f(FB, 28), fill=NAVY, anchor="rm")
     if len(rows) > max_rows:
         print(f"  note : {len(rows) - max_rows} stat(s) du joueur non affichées (manque de place)")
+    _footer_logo(img)
+    p = OUT / path
+    img.save(p)
+    return str(p)
+
+
+# ------------------------------------------------------------------ pronostics (avant le match)
+DRAW_C = (178, 187, 205)
+
+
+def draw_segment_bar(d, img, title, segments, y_title):
+    """Barre à segments (même style pour les 3 pronostics) : [(pourcentage, couleur, libellé), ...]."""
+    x0, x1, bh = 70, 1010, 50
+    d.text((W // 2, y_title), title, font=_f(FB, 26), fill=GRAY, anchor="mm")
+    tot = sum(p for p, _, _ in segments) or 1
+    y_bar = y_title + 80
+    bar = Image.new("RGB", (x1 - x0, bh))
+    bd = ImageDraw.Draw(bar)
+    x, centers = 0, []
+    for p, c, _ in segments:
+        w = round((x1 - x0) * p / tot)
+        bd.rectangle([x, 0, x + w, bh], fill=c)
+        centers.append(x0 + x + w / 2)
+        x += w
+    mask = Image.new("L", bar.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, bar.width - 1, bh - 1], bh // 2, fill=255)
+    img.paste(bar, (x0, y_bar), mask)
+    best = max(range(len(segments)), key=lambda i: segments[i][0])
+    for i, ((p, c, label), cx) in enumerate(zip(segments, centers)):
+        cx = min(max(cx, x0 + 70), x1 - 70)
+        d.text((cx, y_bar - 30), f"{round(p)}%", font=_f(FB, 46 if i == best else 36), fill=NAVY if i == best else GRAY, anchor="mm")
+        d.text((cx, y_bar + bh + 32), label, font=_fit(d, label, FB if i == best else FR, 24, 300), fill=NAVY if i == best else GRAY, anchor="mm")
+    return y_bar + bh + 64
+
+
+def prediction_card(m, date_str, path, use_logos=False):
+    """Pronostic d'un match à venir : victoire, +2,5 buts, les deux équipes marquent (barres à segments)."""
+    OUT.mkdir(exist_ok=True)
+    img = Image.new("RGB", (W, H), WHITE)
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, W, 18], fill=HOME_C)
+    _league_logo(img, d, m, 60, 46, 72, use_logos)
+    d.text((152, 70), m["league"].upper(), font=_fit(d, m["league"].upper(), FB, 30, 620), fill=NAVY, anchor="lm")
+    d.text((152, 110), date_str, font=_f(FR, 24), fill=GRAY, anchor="lm")
+    d.text((W - 60, 70), "PRONOSTIC", font=_f(FB, 26), fill=HOME_C, anchor="rm")
+
+    cy = 270
+    _crest(img, d, m["home"], m.get("home_logo"), 215, cy, 85, use_logos)
+    _crest(img, d, m["away"], m.get("away_logo"), 865, cy, 85, use_logos)
+    d.text((540, cy - 52), "COUP D'ENVOI", font=_f(FB, 22), fill=GRAY, anchor="mm")
+    d.text((540, cy + 10), m["time"], font=_f(FB, 96), fill=NAVY, anchor="mm")
+    d.text((215, 395), m["home"], font=_fit(d, m["home"], FB, 38, 380), fill=NAVY, anchor="mm")
+    d.text((865, 395), m["away"], font=_fit(d, m["away"], FB, 38, 380), fill=NAVY, anchor="mm")
+
+    y = draw_segment_bar(d, img, "VICTOIRE", [(m["p_home"], HOME_C, m["home"]), (m["p_draw"], DRAW_C, "Nul"),
+                                              (m["p_away"], AWAY_C, m["away"])], 480)
+    po = round(m["p_over25"])
+    y = draw_segment_bar(d, img, "NOMBRE DE BUTS", [(po, HOME_C, "Plus de 2,5 buts"), (100 - po, DRAW_C, "Moins de 2,5 buts")], y + 50)
+    pb = round(m["p_btts"])
+    draw_segment_bar(d, img, "LES DEUX ÉQUIPES MARQUENT", [(pb, AWAY_C, "Oui"), (100 - pb, DRAW_C, "Non")], y + 50)
     _footer_logo(img)
     p = OUT / path
     img.save(p)

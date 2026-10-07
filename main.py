@@ -6,6 +6,7 @@ import json, os, pathlib, datetime
 from sources import fetch_finished_matches
 from rating import rate_all, tier
 from images import match_card, player_card, fr
+from noms_fr import fr_team, fr_comp
 import images
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -32,6 +33,11 @@ def main():
     images.OUT = folder
     posts, debug = [], {}
     for i, m in enumerate(ms, 1):
+        tag = leagues.get(m["league"], {}).get("tag", "")
+        m["league"] = fr_comp(m["league"])
+        m["home"], m["away"] = fr_team(m["home"]), fr_team(m["away"])
+        if m.get("best_player"):
+            m["best_player"]["team"] = fr_team(m["best_player"]["team"])
         files = [f"match_{i}_a.png"]
         match_card(m, date_fr, files[0], use_logos=real)
         if m.get("best_player"):
@@ -43,7 +49,7 @@ def main():
                    f"Note : {fr(m['rating'])}\n"
                    + (f"⭐ Meilleur joueur : {m['best_player']['name']} ({fr(round(m['best_player']['rating'], 1))})\n"
                       if m.get("best_player") else "")
-                   + f"\n{cfg['hashtags']} {leagues.get(m['league'], {}).get('tag', '')}".rstrip())
+                   + f"\n{cfg['hashtags']} {tag}".rstrip())
         posts.append({"images": files, "caption": caption})
     posts.reverse()  # moins bien noté d'abord, meilleur en dernier
 

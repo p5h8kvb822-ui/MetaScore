@@ -66,6 +66,7 @@ def _best_player(fx):
     best = None
     for blk in fx.get("players") or []:
         team = blk.get("team", {}).get("name")
+        team_logo = blk.get("team", {}).get("logo")
         for p in blk.get("players", []):
             st = (p.get("statistics") or [{}])[0]
             rating = _num(st.get("games", {}).get("rating"))
@@ -73,7 +74,7 @@ def _best_player(fx):
                 pl = p.get("player", {})
                 g = st.get("games", {})
                 best = {"id": pl.get("id"), "name": pl.get("name"), "photo": pl.get("photo"), "position": g.get("position"),
-                        "shirt": g.get("number"), "team": team, "rating": rating, "stats": st}
+                        "shirt": g.get("number"), "team": team, "team_logo": team_logo, "rating": rating, "stats": st}
     return best
 
 
