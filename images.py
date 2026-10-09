@@ -431,3 +431,69 @@ def player_card(m, date_str, path, use_logos=False):
     p = OUT / path
     img.save(p)
     return str(p)
+
+
+# ------------------------------------------------------------------ prédictions (avant le match)
+# Couleurs : bleu = équipe à domicile, vert = équipe à l'extérieur, gris = match nul
+DRAW_C = (178, 187, 205)
+JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+
+
+def draw_segment_bar(d, img, title, segments, y_title):
+    """Barre découpée en segments (pct, couleur, libellé) ; le plus grand est mis en avant. Retourne le y suivant."""
+    x0, x1, bh = 70, 1010, 50
+    d.text((W // 2, y_title), title, font=_f(FB, 26), fill=GRAY, anchor="mm")
+    y_bar = y_title + 80
+    total = sum(s[0] for s in segments) or 1
+    bar = Image.new("RGB", (x1 - x0, bh), DRAW_C)
+    bd = ImageDraw.Draw(bar)
+    pos, centers = 0.0, []
+    for pct, col, _ in segments:
+        w = (x1 - x0) * pct / total
+        bd.rectangle([round(pos), 0, round(pos + w), bh], fill=col)
+        centers.append(x0 + pos + w / 2)
+        pos += w
+    mask = Image.new("L", bar.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, bar.width - 1, bh - 1], bh // 2, fill=255)
+    img.paste(bar, (x0, y_bar), mask)
+    top = max(range(len(segments)), key=lambda i: segments[i][0])
+    for i, ((pct, col, label), cx) in enumerate(zip(segments, centers)):
+        big = i == top
+        d.text((cx, y_bar - 30), f"{round(pct)}%", font=_f(FB, 50 if big else 36), fill=NAVY if big else GRAY, anchor="mm")
+        d.text((cx, y_bar + bh + 32), label, font=_fit(d, label, FB if big else FR, 24, 300), fill=NAVY if big else GRAY, anchor="mm")
+    return y_bar + bh + 70
+
+
+def prediction_card(m, date_str, path, use_logos=False):
+    """Carte « PRÉDICTIONS » : victoire (bleu domicile / gris nul / vert extérieur), +2,5 buts, deux équipes marquent, score probable."""
+    OUT.mkdir(exist_ok=True)
+    img = Image.new("RGB", (W, H), WHITE)
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, W, 18], fill=HOME_C)
+    _league_logo(img, d, m, 60, 46, 72, use_logos)
+    d.text((152, 70), m["league"].upper(), font=_fit(d, m["league"].upper(), FB, 30, 560), fill=NAVY, anchor="lm")
+    d.text((152, 110), date_str, font=_f(FR, 24), fill=GRAY, anchor="lm")
+    d.text((W - 60, 70), "PRÉDICTIONS", font=_f(FB, 28), fill=HOME_C, anchor="rm")
+
+    cy = 250
+    _crest(img, d, m["home"], m.get("home_logo"), 215, cy, 85, use_logos)
+    _crest(img, d, m["away"], m.get("away_logo"), 865, cy, 85, use_logos)
+    d.text((540, 192), "COUP D'ENVOI (HEURE DE PARIS)", font=_f(FB, 21), fill=GRAY, anchor="mm")
+    d.text((540, 262), m.get("kickoff") or "--:--", font=_f(FB, 96), fill=NAVY, anchor="mm")
+    d.text((215, 375), m["home"], font=_fit(d, m["home"], FB, 38, 380), fill=NAVY, anchor="mm")
+    d.text((865, 375), m["away"], font=_fit(d, m["away"], FB, 38, 380), fill=NAVY, anchor="mm")
+
+    y = draw_segment_bar(d, img, "VICTOIRE", [(m["p_home"], HOME_C, m["home"]), (m["p_draw"], DRAW_C, "Nul"),
+                                              (m["p_away"], AWAY_C, m["away"])], 455)
+    po = m["p_over25"]
+    y = draw_segment_bar(d, img, "NOMBRE DE BUTS", [(po, HOME_C, "Plus de 2,5 buts"), (100 - po, DRAW_C, "Moins de 2,5 buts")], y + 24)
+    pb = m["p_btts"]
+    y = draw_segment_bar(d, img, "LES DEUX ÉQUIPES MARQUENT", [(pb, HOME_C, "Oui"), (100 - pb, DRAW_C, "Non")], y + 24)
+    if m.get("score"):
+        d.text((W // 2, y + 8), "SCORE LE PLUS PROBABLE", font=_f(FB, 26), fill=GRAY, anchor="mm")
+        d.rounded_rectangle([370, y + 36, 710, y + 128], 46, fill=NAVY)
+        d.text((540, y + 82), m["score"].replace("-", " - "), font=_f(FB, 64), fill=WHITE, anchor="mm")
+    _footer_logo(img)
+    p = OUT / path
+    img.save(p)
+    return str(p)

@@ -1,0 +1,8 @@
+[
+ {"_league": "Ligue 1", "event": {"id": 1, "home_team": "Marseille", "away_team": "Lyon", "event_date": "2026-10-09T19:00:00Z"},
+  "markets": {"match_result": {"prob_home": 48.0, "prob_draw": 26.0, "prob_away": 26.0}, "over_under": {"prob_over_25": 64.0},
+              "btts": {"prob_yes": 61.0}, "score": {"most_likely": "2-1"}}},
+ {"_league": "Premier League", "event": {"id": 2, "home_team": "Arsenal", "away_team": "Chelsea", "event_date": "2026-10-09T16:30:00Z"},
+  "markets": {"match_result": {"prob_home": 55.5, "prob_draw": 24.0, "prob_away": 20.5}, "over_under": {"prob_over_25": 58.0},
+              "btts": {"prob_yes": 52.0}, "score": {"most_likely": "2-1"}}}
+]

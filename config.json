@@ -5,36 +5,45 @@
   "leagues": {
     "Ligue 1": {
       "tag": "#Ligue1",
-      "api_football_id": 61
+      "api_football_id": 61,
+      "bsd_id": 6
     },
     "Premier League": {
       "tag": "#PremierLeague",
-      "api_football_id": 39
+      "api_football_id": 39,
+      "bsd_id": 1
     },
     "La Liga": {
       "tag": "#LaLiga",
-      "api_football_id": 140
+      "api_football_id": 140,
+      "bsd_id": 3
     },
     "Bundesliga": {
       "tag": "#Bundesliga",
-      "api_football_id": 78
+      "api_football_id": 78,
+      "bsd_id": 5
     },
     "Serie A": {
       "tag": "#SerieA",
-      "api_football_id": 135
+      "api_football_id": 135,
+      "bsd_id": 4
     },
     "Ligue des champions": {
       "tag": "#ChampionsLeague",
-      "api_football_id": 2
+      "api_football_id": 2,
+      "bsd_id": null
     },
     "Europa League": {
       "tag": "#EuropaLeague",
-      "api_football_id": 3
+      "api_football_id": 3,
+      "bsd_id": null
     },
     "Conference League": {
       "tag": "#ConferenceLeague",
-      "api_football_id": 848
+      "api_football_id": 848,
+      "bsd_id": null
     }
   },
-  "api_min_interval_seconds": 7
+  "api_min_interval_seconds": 7,
+  "hashtags_pronostics": "#Football #Pronostics"
 }
