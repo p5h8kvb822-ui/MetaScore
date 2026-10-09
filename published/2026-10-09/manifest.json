@@ -1,0 +1,27 @@
+{
+ "date": "2026-10-09",
+ "pause": 20,
+ "posts": [
+  {
+   "images": [
+    "match_3_a.png",
+    "match_3_b.png"
+   ],
+   "caption": "🏆 La Liga\nMalaga 1-1 Espanyol\nNote du match : 7.0/10 ⭐\nHomme du match : Adrián Niño Heredia\n1 but | 2 tirs cadrés | 1 récupération | Note : 8.2\n\n#Football #LaLiga #MOTM #MALAGA #ESPANYOL"
+  },
+  {
+   "images": [
+    "match_2_a.png",
+    "match_2_b.png"
+   ],
+   "caption": "🏆 Ligue 1\nLens 2-1 Lyon\nNote du match : 7.7/10 ⭐\nHomme du match : F. Thauvin\n2 passes D | 2 tirs cadrés | 5 passes clés | 1 récupération | Note : 8.6\n\n#Football #Ligue1 #MOTM #LENS #OL"
+  },
+  {
+   "images": [
+    "match_1_a.png",
+    "match_1_b.png"
+   ],
+   "caption": "🏆 Bundesliga\nDortmund 2-2 Brême\nNote du match : 9.1/10 ⭐\nHomme du match : N. Schlotterbeck\n1 but | 2 tirs cadrés | 2 passes clés | 3 récupérations | Note : 8.2\n\n#Football #Bundesliga #MOTM #DORTMUND #BREME"
+  }
+ ]
+}

@@ -1,0 +1,251 @@
+{
+ "Dortmund-Brême": {
+  "id": 26243,
+  "name": "N. Schlotterbeck",
+  "photo": "https://media.api-sports.io/football/players/26243.png",
+  "position": "D",
+  "shirt": 4,
+  "team": "Dortmund",
+  "team_logo": "https://media.api-sports.io/football/teams/165.png",
+  "rating": 8.21,
+  "stats": {
+   "games": {
+    "minutes": 90,
+    "number": 4,
+    "position": "D",
+    "rating": "8.21",
+    "captain": false,
+    "substitute": false
+   },
+   "offsides": 0,
+   "shots": {
+    "total": 4,
+    "on": 2
+   },
+   "goals": {
+    "total": 1,
+    "conceded": null,
+    "assists": 0,
+    "saves": 0
+   },
+   "passes": {
+    "total": 135,
+    "key": 2,
+    "accuracy": "118"
+   },
+   "tackles": {
+    "total": 2,
+    "blocks": 0,
+    "interceptions": 1
+   },
+   "duels": {
+    "total": 11,
+    "won": 6
+   },
+   "dribbles": {
+    "attempts": 4,
+    "success": 2,
+    "past": null
+   },
+   "fouls": {
+    "drawn": 0,
+    "committed": 0
+   },
+   "cards": {
+    "yellow": 0,
+    "red": 0
+   },
+   "penalty": {
+    "won": null,
+    "commited": null,
+    "scored": 0,
+    "missed": null,
+    "saved": null
+   }
+  },
+  "profile": {
+   "id": 26243,
+   "name": "N. Schlotterbeck",
+   "firstname": "Nico Cedric",
+   "lastname": "Schlotterbeck",
+   "age": 26,
+   "birth": {
+    "date": "1999-12-01",
+    "place": "Waiblingen",
+    "country": "Germany"
+   },
+   "nationality": "Germany",
+   "height": "191",
+   "weight": "86",
+   "number": 15,
+   "position": "Defender",
+   "photo": "https://media.api-sports.io/football/players/26243.png"
+  }
+ },
+ "Lens-Lyon": {
+  "id": 1922,
+  "name": "F. Thauvin",
+  "photo": "https://media.api-sports.io/football/players/1922.png",
+  "position": "M",
+  "shirt": 10,
+  "team": "Lens",
+  "team_logo": "https://media.api-sports.io/football/teams/116.png",
+  "rating": 8.6,
+  "stats": {
+   "games": {
+    "minutes": 90,
+    "number": 10,
+    "position": "M",
+    "rating": "8.6",
+    "captain": false,
+    "substitute": false
+   },
+   "offsides": 0,
+   "shots": {
+    "total": 2,
+    "on": 2
+   },
+   "goals": {
+    "total": 0,
+    "conceded": null,
+    "assists": 2,
+    "saves": 0
+   },
+   "passes": {
+    "total": 50,
+    "key": 5,
+    "accuracy": "39"
+   },
+   "tackles": {
+    "total": 0,
+    "blocks": 0,
+    "interceptions": 1
+   },
+   "duels": {
+    "total": 6,
+    "won": 3
+   },
+   "dribbles": {
+    "attempts": 0,
+    "success": 0,
+    "past": null
+   },
+   "fouls": {
+    "drawn": 2,
+    "committed": 1
+   },
+   "cards": {
+    "yellow": 0,
+    "red": 0
+   },
+   "penalty": {
+    "won": null,
+    "commited": null,
+    "scored": 0,
+    "missed": null,
+    "saved": null
+   }
+  },
+  "profile": {
+   "id": 1922,
+   "name": "F. Thauvin",
+   "firstname": "Florian Tristán Mariano",
+   "lastname": "Thauvin",
+   "age": 33,
+   "birth": {
+    "date": "1993-01-26",
+    "place": "Orleans",
+    "country": "France"
+   },
+   "nationality": "France",
+   "height": "179",
+   "weight": "70",
+   "number": 10,
+   "position": "Attacker",
+   "photo": "https://media.api-sports.io/football/players/1922.png"
+  }
+ },
+ "Malaga-Espanyol": {
+  "id": 386850,
+  "name": "Adrián Niño Heredia",
+  "photo": "https://media.api-sports.io/football/players/386850.png",
+  "position": "F",
+  "shirt": 21,
+  "team": "Malaga",
+  "team_logo": "https://media.api-sports.io/football/teams/535.png",
+  "rating": 8.2,
+  "stats": {
+   "games": {
+    "minutes": 28,
+    "number": 21,
+    "position": "F",
+    "rating": "8.2",
+    "captain": false,
+    "substitute": false
+   },
+   "offsides": 0,
+   "shots": {
+    "total": 2,
+    "on": 2
+   },
+   "goals": {
+    "total": 1,
+    "conceded": null,
+    "assists": 0,
+    "saves": 0
+   },
+   "passes": {
+    "total": 5,
+    "key": 0,
+    "accuracy": "4"
+   },
+   "tackles": {
+    "total": 1,
+    "blocks": 0,
+    "interceptions": 0
+   },
+   "duels": {
+    "total": 2,
+    "won": 1
+   },
+   "dribbles": {
+    "attempts": 0,
+    "success": 0,
+    "past": null
+   },
+   "fouls": {
+    "drawn": 0,
+    "committed": 0
+   },
+   "cards": {
+    "yellow": 0,
+    "red": 0
+   },
+   "penalty": {
+    "won": null,
+    "commited": null,
+    "scored": 0,
+    "missed": null,
+    "saved": null
+   }
+  },
+  "profile": {
+   "id": 386850,
+   "name": "Adrián Niño Heredia",
+   "firstname": "Adrián",
+   "lastname": "Niño Heredia",
+   "age": 22,
+   "birth": {
+    "date": "2004-06-19",
+    "place": "Rota",
+    "country": "Spain"
+   },
+   "nationality": "Spain",
+   "height": "184 cm",
+   "weight": "70 kg",
+   "number": 21,
+   "position": "Attacker",
+   "photo": "https://media.api-sports.io/football/players/386850.png"
+  }
+ }
+}
