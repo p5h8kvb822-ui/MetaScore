@@ -1,0 +1,63 @@
+{
+ "total_recu": 53,
+ "exemple_brut": {
+  "id": 4334,
+  "created_at": "2026-10-02T02:15:25Z",
+  "event": {
+   "id": 7279,
+   "event_date": "2026-10-09T00:30:00Z",
+   "status": "finished",
+   "home_team_id": 162,
+   "home_team": "Palmeiras",
+   "away_team_id": 166,
+   "away_team": "Bahia",
+   "league_id": 9,
+   "league_name": "Brasileirão Serie A"
+  },
+  "markets": {
+   "match_result": {
+    "prob_home": 60.8,
+    "prob_draw": 21.8,
+    "prob_away": 17.5,
+    "predicted": "H"
+   },
+   "expected_goals": {
+    "home": 1.92,
+    "away": 0.86
+   },
+   "over_under": {
+    "prob_over_15": 80.4,
+    "prob_over_25": 60.2,
+    "prob_over_35": 36.1
+   },
+   "btts": {
+    "prob_yes": 56.0
+   },
+   "score": {
+    "most_likely": "1-0"
+   },
+   "draw_no_bet": {
+    "prob_home": 81.9
+   },
+   "corners": {
+    "prob_over_85": 73.9,
+    "prob_over_95": 63.0,
+    "prob_over_105": 53.2
+   }
+  },
+  "recommendations": {
+   "favorite": "H",
+   "favorite_prob": 60.8,
+   "bet_favorite": false,
+   "over_15": false,
+   "over_25": false,
+   "over_35": false,
+   "btts": false,
+   "winner": false
+  },
+  "model": {
+   "confidence": 0.6075,
+   "version": "dc-blend-v1"
+  }
+ }
+}
