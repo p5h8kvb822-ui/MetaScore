@@ -1,39 +1,38 @@
 {
   "sample_mode": false,
-  "hashtags": "#football #notesdesmatchs",
   "max_matches": 20,
   "pause_between_posts_seconds": 20,
   "leagues": {
     "Ligue 1": {
-      "tag": "#ligue1",
+      "tag": "#Ligue1",
       "api_football_id": 61
     },
     "Premier League": {
-      "tag": "#premierleague",
+      "tag": "#PremierLeague",
       "api_football_id": 39
     },
     "La Liga": {
-      "tag": "#laliga",
+      "tag": "#LaLiga",
       "api_football_id": 140
     },
     "Bundesliga": {
-      "tag": "#bundesliga",
+      "tag": "#Bundesliga",
       "api_football_id": 78
     },
     "Serie A": {
-      "tag": "#seriea",
+      "tag": "#SerieA",
       "api_football_id": 135
     },
     "Ligue des champions": {
-      "tag": "#championsleague",
+      "tag": "#ChampionsLeague",
       "api_football_id": 2
     },
     "Europa League": {
-      "tag": "#europaleague",
+      "tag": "#EuropaLeague",
       "api_football_id": 3
     },
     "Conference League": {
-      "tag": "#conferenceleague",
+      "tag": "#ConferenceLeague",
       "api_football_id": 848
     }
   },

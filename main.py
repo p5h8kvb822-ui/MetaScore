@@ -8,6 +8,7 @@ from rating import rate_all, tier
 from images import match_card, player_card, fr
 from noms_fr import fr_team, fr_comp
 import images
+from legende import legende
 
 ROOT = pathlib.Path(__file__).resolve().parent
 
@@ -33,7 +34,7 @@ def main():
     images.OUT = folder
     posts, debug = [], {}
     for i, m in enumerate(ms, 1):
-        tag = leagues.get(m["league"], {}).get("tag", "")
+        m["league_tag"] = leagues.get(m["league"], {}).get("tag", "")
         m["league"] = fr_comp(m["league"])
         m["home"], m["away"] = fr_team(m["home"]), fr_team(m["away"])
         if m.get("best_player"):
@@ -44,12 +45,7 @@ def main():
             files.append(f"match_{i}_b.png")
             player_card(m, date_fr, files[1], use_logos=real)
             debug[f"{m['home']}-{m['away']}"] = m["best_player"]  # pour vérifier les stats reçues
-        _, _, emoji = tier(m["rating"])
-        caption = (f"{emoji} {m['home']} {m['score_home']}-{m['score_away']} {m['away']}\n"
-                   f"Note : {fr(m['rating'])}\n"
-                   + (f"⭐ Homme du match : {m['best_player']['name']} ({fr(round(m['best_player']['rating'], 1))})\n"
-                      if m.get("best_player") else "")
-                   + f"\n{cfg['hashtags']} {tag}".rstrip())
+        caption = legende(m)
         posts.append({"images": files, "caption": caption})
     posts.reverse()  # moins bien noté d'abord, meilleur en dernier
 
