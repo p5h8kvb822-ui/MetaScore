@@ -2,6 +2,7 @@ name: Horoscope du jour
 
 on:
   schedule:
+    # 04h et 05h UTC : l'un des deux tombe a 6h heure de France (ete ou hiver), l'autre est ignore
     - cron: "0 4 * * *"
     - cron: "0 5 * * *"
   workflow_dispatch:
@@ -47,6 +48,7 @@ jobs:
         if: steps.heure.outputs.go == 'yes'
         env:
           MATCH_DATE: ${{ github.event.inputs.date }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python horoscope.py
       - name: Enregistrer les images dans le depot
