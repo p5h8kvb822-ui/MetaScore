@@ -1,0 +1,68 @@
+name: Horoscope du jour
+
+on:
+  schedule:
+    # 04h et 05h UTC : l'un des deux tombe a 6h heure de France (ete ou hiver), l'autre est ignore
+    - cron: "0 4 * * *"
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Date AAAA-MM-JJ (vide = aujourd'hui)"
+        required: false
+        default: ""
+      publish:
+        description: "Publier sur Instagram (true) ou seulement generer les images (false)"
+        required: false
+        default: "true"
+
+permissions:
+  contents: write
+
+jobs:
+  horoscope:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verifier l'heure (6h en France)
+        id: heure
+        run: |
+          H=$(TZ=Europe/Paris date +%H)
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$H" != "06" ]; then
+            echo "Il est ${H}h en France : ce n'est pas l'heure, on s'arrete."
+            echo "go=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=yes" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.heure.outputs.go == 'yes'
+      - uses: actions/setup-python@v5
+        if: steps.heure.outputs.go == 'yes'
+        with:
+          python-version: "3.12"
+      - name: Installer les outils
+        if: steps.heure.outputs.go == 'yes'
+        run: |
+          sudo apt-get install -y libraqm0 libfribidi0 || true
+          pip install Pillow requests
+      - name: Creer les 12 images
+        if: steps.heure.outputs.go == 'yes'
+        env:
+          MATCH_DATE: ${{ github.event.inputs.date }}
+        run: python horoscope.py
+      - name: Enregistrer les images dans le depot
+        if: steps.heure.outputs.go == 'yes'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A published
+          git commit -m "Horoscope du jour" || echo "Rien a enregistrer"
+          git pull --rebase
+          git push
+      - name: Publier sur Instagram
+        if: steps.heure.outputs.go == 'yes' && github.event.inputs.publish != 'false'
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: |
+          MANIFEST=$(cat published/latest_horoscope.txt)
+          export IMAGE_BASE_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/$(dirname "$MANIFEST")"
+          python post_instagram.py "$MANIFEST"
