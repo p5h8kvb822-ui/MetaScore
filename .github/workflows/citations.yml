@@ -48,6 +48,7 @@ jobs:
         if: steps.heure.outputs.go == 'yes'
         env:
           MATCH_DATE: ${{ github.event.inputs.date }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python citations.py
       - name: Enregistrer les images dans le depot
