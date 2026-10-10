@@ -42,7 +42,7 @@ jobs:
       - name: Installer les outils
         if: steps.heure.outputs.go == 'yes'
         run: |
-          sudo apt-get install -y libraqm0 libfribidi0 || true
+          sudo apt-get install -y libraqm0 libfribidi0 fonts-noto-color-emoji || true
           pip install Pillow requests
       - name: Creer les 3 citations
         if: steps.heure.outputs.go == 'yes'
