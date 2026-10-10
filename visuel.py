@@ -1,10 +1,11 @@
 """Visuel horoscope : fond crème, date verticale (Hug Me Tight), signe (Ellisha), texte (Malerose), logo Citasie."""
-import pathlib, textwrap
+import pathlib, math
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent
 S = 2048            # dessin en haute définition, réduit ensuite à 1080
 BG, GOLD, INK = (253, 245, 230), (201, 162, 39), (10, 10, 10)
+ETOILE = (211, 174, 55)  # #D3AE37
 SORTIE = 1080
 
 
@@ -23,7 +24,20 @@ def _wrap(d, texte, font, largeur):
     return lignes + [cur] if cur else lignes
 
 
-def visuel(signe, date_txt, texte, chemin):
+def _etoile(d, cx, cy, r, pleine):
+    """Étoile à 5 branches : pleine (note obtenue) ou simple contour (note manquante)."""
+    pts = []
+    for k in range(10):
+        ang = -math.pi / 2 + k * math.pi / 5
+        rr = r if k % 2 == 0 else r * 0.45
+        pts.append((cx + rr * math.cos(ang), cy + rr * math.sin(ang)))
+    if pleine:
+        d.polygon(pts, fill=ETOILE)
+    else:
+        d.line(pts + [pts[0]], fill=ETOILE, width=5, joint="curve")
+
+
+def visuel(signe, date_txt, texte, chemin, etoiles=None):
     img = Image.new("RGB", (S, S), BG)
     d = ImageDraw.Draw(img)
 
@@ -41,16 +55,27 @@ def visuel(signe, date_txt, texte, chemin):
     bande = bande.rotate(90, expand=True)
     img.paste(bande, (50, 100), bande)
 
+    # note du jour : 1 à 5 étoiles #D3AE37
+    if etoiles:
+        for k in range(5):
+            _etoile(d, 245 + k * 92, 490, 38, k < etoiles)
+
     # texte centré : on réduit la police jusqu'à ce que le bloc tienne
     taille = 118
     while True:
         ft = _font("Malerose.otf", taille)
         lignes = _wrap(d, texte, ft, 1480)
         pas = int(taille * 1.3)
-        if len(lignes) * pas <= 1050 or taille <= 70:
+        if len(lignes) * pas <= 900 or taille <= 70:
             break
         taille -= 4
-    haut = 1080 - len(lignes) * pas // 2 + pas // 2 + 60
+    # centrage exact de l'encre du texte entre le bas des étoiles (ou du nom) et le haut du logo Citasie
+    haut_zone = 530 if etoiles else 440
+    bas_zone = 1885
+    haut = 0
+    boites = [d.textbbox((S // 2, haut + i * pas), l, font=ft, anchor="mm") for i, l in enumerate(lignes)]
+    encre_haut, encre_bas = min(b[1] for b in boites), max(b[3] for b in boites)
+    haut = round((haut_zone + bas_zone) / 2 - (encre_haut + encre_bas) / 2)
     for i, l in enumerate(lignes):
         d.text((S // 2, haut + i * pas), l, font=ft, fill=INK, anchor="mm")
 

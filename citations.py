@@ -91,7 +91,10 @@ def dessiner(citation, chemin):
         if len(lignes) * pas <= 1150 or taille <= 70:
             break
         taille -= 4
-    haut = 960 - len(lignes) * pas // 2 + pas // 2
+    # centrage exact de l'encre du texte entre la ligne dorée du haut et celle du bas
+    boites = [d.textbbox((S // 2, i * pas), l, font=f, anchor="mm") for i, l in enumerate(lignes)]
+    encre_haut, encre_bas = min(b[1] for b in boites), max(b[3] for b in boites)
+    haut = round((165 + 1895) / 2 - (encre_haut + encre_bas) / 2)
     for i, l in enumerate(lignes):
         d.text((S // 2, haut + i * pas), l, font=f, fill=INK, anchor="mm")
     img.resize((SORTIE, SORTIE), Image.LANCZOS).save(chemin, quality=95)
