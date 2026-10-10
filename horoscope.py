@@ -19,7 +19,10 @@ une envie de tout plaquer...), un trait de caractère propre au signe, une touch
 qui donne envie de le partager ou d'identifier un proche. Le ton est chaleureux, piquant, jamais vague ni générique.
 Contraintes : 3 ou 4 phrases courtes, entre 170 et 260 caractères au total, sans émoji, sans hashtag, sans retour à la ligne,
 sans promesse médicale, financière ou absolue (« vous allez gagner »), et chaque texte doit être très différent des autres.
-Réponds UNIQUEMENT par un tableau JSON de 12 chaînes, dans cet ordre : {signes}."""
+Pour chaque signe, donne aussi une NOTE de 1 à 5 (entier) qui dit la qualité de la journée : 5 = journée exceptionnelle,
+3 = correcte, 1 = journée difficile. Les notes doivent être variées et crédibles (au moins un signe à 2 ou moins, au moins un à 5,
+moyenne autour de 3,5) et le texte doit être cohérent avec la note (jour difficile : conseil bienveillant et humour).
+Réponds UNIQUEMENT par un tableau JSON de 12 objets {{"note": 1 à 5, "texte": "..."}}, dans cet ordre : {signes}."""
 
 
 def textes_ia(jour):
@@ -31,9 +34,15 @@ def textes_ia(jour):
     try:
         brut = ia.demander(CONSIGNE.format(date=date, signes=", ".join(SIGNES)))
         liste = json.loads(re.search(r"\[.*\]", brut, re.S).group(0))
-        if len(liste) != 12 or not all(isinstance(t, str) for t in liste):
+        if len(liste) != 12:
             raise ValueError("format inattendu")
-        return [" ".join(t.split()) for t in liste]
+        out = []
+        for x in liste:
+            note = int(x["note"])
+            if not 1 <= note <= 5:
+                raise ValueError("note hors 1-5")
+            out.append({"note": note, "texte": " ".join(str(x["texte"]).split())})
+        return out
     except Exception as e:
         print(f"IA indisponible ({e}) : textes de la banque.")
         return None
@@ -41,6 +50,14 @@ def textes_ia(jour):
 
 def texte_ok(t):
     return 80 <= len(t) <= 330
+
+
+NOTES_SECOURS = [3, 4, 5, 4, 2, 3, 5, 4, 3, 2, 4, 5]
+PAR_CARROUSEL = 12  # un seul carrousel de 12 images (Instagram accepte 20 images par carrousel)
+
+
+def etoiles(n):
+    return "★" * n + "☆" * (5 - n)
 
 
 def main():
@@ -52,17 +69,27 @@ def main():
     (pub / "latest_horoscope.txt").unlink(missing_ok=True)
     dossier = pub / "horoscope" / jour.isoformat()
     dossier.mkdir(parents=True, exist_ok=True)
-    posts = []
     ia = textes_ia(jour)
+    fiches = []
     for i, signe in enumerate(SIGNES):
-        texte = ia[i] if ia and texte_ok(ia[i]) else horoscope(i, jour)
+        if ia and texte_ok(ia[i]["texte"]):
+            texte, note = ia[i]["texte"], ia[i]["note"]
+        else:
+            texte, note = horoscope(i, jour), NOTES_SECOURS[(jour.toordinal() + i) % 12]
         slug = signe.lower().replace("é", "e").replace("è", "e")
         nom = f"{i + 1:02d}_{slug}.png"
-        visuel(signe, date_txt, texte, dossier / nom)
-        tag = "#" + slug
-        posts.append({"images": [nom],
-                      "caption": f"{SYMBOLES[i]}️ {signe} : horoscope du {date_txt}\n\n{texte}\n\n{tag} {HASHTAGS}"})
-    posts.reverse()  # Poissons d'abord, Bélier en dernier : il apparaît en premier sur le profil
+        visuel(signe, date_txt, texte, dossier / nom, etoiles=note)
+        fiches.append({"i": i, "signe": signe, "slug": slug, "nom": nom, "note": note})
+    posts = []
+    nb = 12 // PAR_CARROUSEL
+    for p in range(nb):
+        groupe = fiches[p * PAR_CARROUSEL:(p + 1) * PAR_CARROUSEL]
+        lignes = "\n".join(f"{SYMBOLES[f['i']]}\ufe0f {f['signe']} {etoiles(f['note'])}" for f in groupe)
+        tags = " ".join("#" + f["slug"] for f in groupe)
+        caption = (f"🔮 Horoscope du {date_txt} ({p + 1}/{nb})\n\nLa note de la journée pour chaque signe, "
+                   f"swipez pour lire le détail :\n\n{lignes}\n\n{tags} {HASHTAGS}")
+        posts.append({"images": [f["nom"] for f in groupe], "caption": caption})
+    posts.reverse()  # le carrousel Bélier-Vierge est publié en dernier : il apparaît en premier sur le profil
     (dossier / "manifest.json").write_text(json.dumps({"date": jour.isoformat(), "pause": 20, "posts": posts},
                                                       ensure_ascii=False, indent=1), encoding="utf-8")
     (pub / "latest_horoscope.txt").write_text(f"published/horoscope/{jour.isoformat()}/manifest.json", encoding="utf-8")
