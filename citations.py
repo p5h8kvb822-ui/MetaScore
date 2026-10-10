@@ -3,13 +3,12 @@ Textes écrits par l'IA (clé ANTHROPIC_API_KEY) ; sinon petite banque de secour
 Écrit published/citations/<date>/ (images + manifest.json) et published/latest_citations.txt. Test d'une autre date : MATCH_DATE."""
 import json, os, pathlib, datetime, re
 from zoneinfo import ZoneInfo
-import requests
+import ia
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent
 THEMES = ["Amour", "Amitié", "Bonheur", "Famille"]
 HASHTAGS = "#quote #citation #Amour #Amitié #Bonheur"
-MODELE = "claude-sonnet-5-5"
 INK = (10, 10, 10)
 S, SORTIE = 2048, 1080
 
@@ -55,18 +54,11 @@ def themes_du_jour(jour):
 
 
 def generer_ia(themes, jour):
-    cle = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if not cle:
-        print("Pas de clé ANTHROPIC_API_KEY : citations de secours.")
+    if not ia.disponible():
+        print("Pas de clé OPENAI_API_KEY : citations de secours.")
         return None
     try:
-        r = requests.post("https://api.anthropic.com/v1/messages", timeout=120,
-                          headers={"x-api-key": cle, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                          json={"model": MODELE, "max_tokens": 2000, "temperature": 1,
-                                "messages": [{"role": "user", "content": CONSIGNE.format(
-                                    themes=", ".join(themes), date=jour.strftime("%d/%m/%Y"))}]})
-        r.raise_for_status()
-        brut = "".join(b.get("text", "") for b in r.json()["content"] if b.get("type") == "text")
+        brut = ia.demander(CONSIGNE.format(themes=", ".join(themes), date=jour.strftime("%d/%m/%Y")), 2000)
         liste = json.loads(re.search(r"\[.*\]", brut, re.S).group(0))
         if len(liste) != 3:
             raise ValueError("format inattendu")

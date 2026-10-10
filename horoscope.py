@@ -1,7 +1,7 @@
 """Horoscope du jour : 12 images (une par signe) + légendes, dans published/horoscope/<date>/.
 Écrit published/latest_horoscope.txt (chemin du manifest). Variable optionnelle : MATCH_DATE (AAAA-MM-JJ) pour tester une autre date."""
 import json, os, pathlib, datetime, re
-import requests
+import ia
 from zoneinfo import ZoneInfo
 from textes import SIGNES, SYMBOLES, horoscope
 from visuel import visuel
@@ -11,7 +11,6 @@ HASHTAGS = "#horoscope #astrologie #horoscopedujour #signeastrologique #citasie"
 
 
 JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
-MODELE = "claude-sonnet-5-5"
 CONSIGNE = """Tu écris l'horoscope du jour pour un compte Instagram francophone, pour les 12 signes du zodiaque.
 Date : {date}. Tutoiement interdit : on vouvoie le lecteur (« vous »).
 Pour chaque signe : un texte PERSONNEL, qui donne l'impression de parler directement à la personne, avec une situation
@@ -25,18 +24,12 @@ Réponds UNIQUEMENT par un tableau JSON de 12 chaînes, dans cet ordre : {signes
 
 def textes_ia(jour):
     """12 textes écrits par l'IA, ou None si la clé est absente ou si la réponse est inutilisable."""
-    cle = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if not cle:
-        print("Pas de clé ANTHROPIC_API_KEY : textes de la banque.")
+    if not ia.disponible():
+        print("Pas de clé OPENAI_API_KEY : textes de la banque.")
         return None
     date = f"{JOURS[jour.weekday()]} {jour.strftime('%d/%m/%Y')}"
     try:
-        r = requests.post("https://api.anthropic.com/v1/messages", timeout=120,
-                          headers={"x-api-key": cle, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                          json={"model": MODELE, "max_tokens": 3000, "temperature": 1,
-                                "messages": [{"role": "user", "content": CONSIGNE.format(date=date, signes=", ".join(SIGNES))}]})
-        r.raise_for_status()
-        brut = "".join(b.get("text", "") for b in r.json()["content"] if b.get("type") == "text")
+        brut = ia.demander(CONSIGNE.format(date=date, signes=", ".join(SIGNES)))
         liste = json.loads(re.search(r"\[.*\]", brut, re.S).group(0))
         if len(liste) != 12 or not all(isinstance(t, str) for t in liste):
             raise ValueError("format inattendu")
