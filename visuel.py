@@ -1,5 +1,5 @@
-"""Visuel horoscope : fond crème, date verticale (Hug Me Tight), signe (Ellisha), texte (Malerose), logo Citasie."""
-import pathlib, math
+"""Visuel horoscope : fond crème, date verticale (Hug Me Tight), signe (Ellisha), texte (Quote), logo Citasie."""
+import pathlib, math, re
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -37,7 +37,17 @@ def _etoile(d, cx, cy, r, pleine):
         d.line(pts + [pts[0]], fill=ETOILE, width=5, joint="curve")
 
 
+def _nettoyer(t):
+    """Remplace les signes que la police Quote ne possède pas (apostrophe courbe, guillemets, points de suspension, tirets)."""
+    t = re.sub(r"«\s*", '"', t)
+    t = re.sub(r"\s*»", '"', t)
+    for a, b in (("’", "'"), ("‘", "'"), ("«", '"'), ("»", '"'), ("“", '"'), ("”", '"'), ("…", "..."), ("—", "-"), ("–", "-"), ("\u00a0", " "), ("\u202f", " ")):
+        t = t.replace(a, b)
+    return t
+
+
 def visuel(signe, date_txt, texte, chemin, etoiles=None):
+    texte = _nettoyer(texte)
     img = Image.new("RGB", (S, S), BG)
     d = ImageDraw.Draw(img)
 
@@ -63,7 +73,7 @@ def visuel(signe, date_txt, texte, chemin, etoiles=None):
     # texte centré : on réduit la police jusqu'à ce que le bloc tienne
     taille = 118
     while True:
-        ft = _font("Malerose.otf", taille)
+        ft = _font("Quote.ttf", taille)
         lignes = _wrap(d, texte, ft, 1480)
         pas = int(taille * 1.3)
         if len(lignes) * pas <= 900 or taille <= 70:
