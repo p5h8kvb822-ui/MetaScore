@@ -1,0 +1,85 @@
+{
+ "Lyon-Crystal Palace": {
+  "id": 33321,
+  "name": "Keito Nakamura",
+  "photo": "https://media.api-sports.io/football/players/33321.png",
+  "position": "F",
+  "shirt": 11,
+  "team": "Lyon",
+  "team_logo": "https://media.api-sports.io/football/teams/80.png",
+  "rating": 8.09,
+  "stats": {
+   "games": {
+    "minutes": 90,
+    "number": 11,
+    "position": "F",
+    "rating": "8.09",
+    "captain": false,
+    "substitute": false
+   },
+   "offsides": 0,
+   "shots": {
+    "total": 2,
+    "on": 0
+   },
+   "goals": {
+    "total": 0,
+    "conceded": null,
+    "assists": 2,
+    "saves": 0
+   },
+   "passes": {
+    "total": 34,
+    "key": 4,
+    "accuracy": "29"
+   },
+   "tackles": {
+    "total": 0,
+    "blocks": 1,
+    "interceptions": 0
+   },
+   "duels": {
+    "total": 7,
+    "won": 3
+   },
+   "dribbles": {
+    "attempts": 2,
+    "success": 2,
+    "past": null
+   },
+   "fouls": {
+    "drawn": 1,
+    "committed": 1
+   },
+   "cards": {
+    "yellow": 1,
+    "red": 0
+   },
+   "penalty": {
+    "won": null,
+    "commited": null,
+    "scored": 0,
+    "missed": null,
+    "saved": null
+   }
+  },
+  "profile": {
+   "id": 33321,
+   "name": "Keito Nakamura",
+   "firstname": "Keito",
+   "lastname": "Nakamura",
+   "age": 26,
+   "birth": {
+    "date": "2000-07-28",
+    "place": "Abiko",
+    "country": "Japan"
+   },
+   "nationality": "Japan",
+   "height": "180",
+   "weight": "73",
+   "number": 11,
+   "position": "Attacker",
+   "photo": "https://media.api-sports.io/football/players/33321.png"
+  }
+ }
+}
