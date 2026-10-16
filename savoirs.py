@@ -114,21 +114,21 @@ def panneau_secours(theme):
 
 
 def dessiner(titre, texte, photo, chemin):
-    titre, texte = _nettoyer(titre), _nettoyer(texte)
+    titre, texte = _nettoyer(titre).upper(), _nettoyer(texte)   # titres en capitales
     img = Image.new("RGB", (W, H), BG)
     img.paste(photo, (0, 0))
     d = ImageDraw.Draw(img)
     marge, largeur = 60, W - 120
     zone_haut, zone_bas = PHOTO_H, H - 30
     # polices : on réduit jusqu'à ce que tout tienne
-    t_titre, t_texte = 50, 34
+    t_titre, t_texte = 46, 34
     while True:
-        ft, fx = _police("HugMeTight.ttf", t_titre), _police("Quote.ttf", t_texte)
+        ft, fx = _police("Poppins-Bold.ttf", t_titre), _police("Quote.ttf", t_texte)
         lt, lx = _lignes(d, titre, ft, largeur), _lignes(d, texte, fx, largeur)
         h_tot = 40 + 16 + len(lt) * int(t_titre * 1.2) + 18 + len(lx) * int(t_texte * 1.35)
-        if h_tot <= zone_bas - zone_haut - 30 or (t_titre <= 34 and t_texte <= 26):
+        if h_tot <= zone_bas - zone_haut - 30 or (t_titre <= 30 and t_texte <= 26):
             break
-        t_titre, t_texte = max(34, t_titre - 2), max(26, t_texte - 1)
+        t_titre, t_texte = max(30, t_titre - 2), max(26, t_texte - 1)
     y = zone_haut + ((zone_bas - zone_haut) - h_tot) // 2
     d.text((W // 2, y + 14), "LE SAVIEZ-VOUS ?", font=_police("HugMeTight.ttf", 26), fill=GOLD, anchor="mm")
     y += 40 + 16
