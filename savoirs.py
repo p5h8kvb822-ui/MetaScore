@@ -8,7 +8,7 @@ from visuel import _nettoyer
 
 ROOT = pathlib.Path(__file__).resolve().parent
 W, H, PHOTO_H = 1080, 1350, 810          # image 4:5 : photo 4:3 (1080x810) en haut, texte en dessous
-BG, GOLD, INK = (253, 245, 230), (201, 162, 39), (10, 10, 10)
+BG, GOLD, INK = (0, 0, 0), (201, 162, 39), (255, 255, 255)   # fond noir, « le saviez-vous » doré, textes blancs
 HASHTAGS = "#savoirinutile #lesavieztvous #culturegenerale #insolite #anecdote"
 
 THEMES = ["animaux", "corps humain", "espace", "histoire", "science", "nature", "géographie", "nourriture",
@@ -104,8 +104,8 @@ def photo_4_3(img):
 
 
 def panneau_secours(theme):
-    """Si aucune photo n'est disponible : fond crème dégradé et émoji du thème."""
-    img = Image.new("RGB", (W, PHOTO_H), (246, 232, 200))
+    """Si aucune photo n'est disponible : fond sombre et émoji du thème."""
+    img = Image.new("RGB", (W, PHOTO_H), (28, 28, 30))
     e = _emoji(EMOJI_THEME.get(theme, "💡"))
     if e:
         e = e.resize((round(e.width * 360 / e.height), 360), Image.LANCZOS)
@@ -119,7 +119,7 @@ def dessiner(titre, texte, photo, chemin):
     img.paste(photo, (0, 0))
     d = ImageDraw.Draw(img)
     marge, largeur = 60, W - 120
-    zone_haut, zone_bas = PHOTO_H, H - 95         # 95 px réservés au logo
+    zone_haut, zone_bas = PHOTO_H, H - 30
     # polices : on réduit jusqu'à ce que tout tienne
     t_titre, t_texte = 50, 34
     while True:
@@ -137,10 +137,6 @@ def dessiner(titre, texte, photo, chemin):
     y += 18
     for l in lx:
         d.text((W // 2, y), l, font=fx, fill=INK, anchor="mt"); y += int(t_texte * 1.35)
-    logo = Image.open(ROOT / "citasie_logo.png").convert("RGBA")
-    lh = 62
-    logo = logo.resize((round(logo.width * lh / logo.height), lh), Image.LANCZOS)
-    img.paste(logo, ((W - logo.width) // 2, H - lh - 22), logo)
     img.save(chemin, quality=95)
 
 
