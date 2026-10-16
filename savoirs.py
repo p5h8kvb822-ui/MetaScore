@@ -19,14 +19,20 @@ qui donnent envie de dire « ah, je ne savais pas ! » et de partager. Date : {d
 Exigences : faits bien établis (aucune légende urbaine, aucun chiffre incertain, pas de fait contesté), formulés avec précision ;
 si un chiffre varie selon les sources, reste qualitatif. Chaque fait doit être inattendu et différent des classiques les plus rebattus.
 Pour chaque publication fournis :
-- "titre" : l'accroche, une phrase percutante (entre 30 et 75 caractères), sans point d'exclamation ;
+- "titre" : l'accroche, une phrase percutante qui crée de la curiosité (entre 30 et 75 caractères), sans point d'exclamation ;
+  privilégie un chiffre précis, un contraste ou une question (« Pourquoi... », « Ce qu'on ignore sur... ») ;
+- "mot_cle" : le ou les 1 à 3 mots du titre à mettre en valeur en doré (le chiffre ou le mot le plus frappant), recopiés exactement ;
 - "texte" : l'explication en 2 ou 3 phrases courtes, claires, avec « vous » si besoin (entre 140 et 260 caractères) ;
 - "legende" : le texte d'accompagnement Instagram, 2 à 3 phrases chaleureuses, 1 à 2 émojis, qui se termine par une question ou
   une invitation à taguer ou commenter (entre 120 et 330 caractères, sans hashtag) ;
 - "photo" : une description EN ANGLAIS d'une photographie réaliste qui illustre exactement le sujet (sujet clair au centre, belle lumière,
-  style photo de magazine), sans aucun texte ni lettre dans l'image, sans logo, sans personne réelle ou célèbre.
+  style photo de magazine ; éclairage dramatique et cinématographique, couleurs vives, composition spectaculaire en gros plan,
+  sujet qui remplit le cadre, fond sombre en bas de l'image), sans aucun texte ni lettre dans l'image, sans logo, sans personne réelle ou célèbre.
 Réponds UNIQUEMENT par un tableau JSON de 3 objets {{"theme": ..., "titre": ..., "texte": ..., "legende": ..., "photo": ...}}."""
 
+MOTS_CLES = {"Une pieuvre possède trois cœurs.": "trois cœurs", "La tour Eiffel grandit quand il fait chaud.": "grandit",
+             "Une banane est une baie, mais pas une fraise.": "baie", "Sur Vénus, un jour dure plus longtemps qu'une année.": "plus longtemps",
+             "Les loutres de mer se tiennent la main pour dormir.": "la main", "Le miel peut se conserver pendant des années.": "des années"}
 SECOURS = [
     ("Une pieuvre possède trois cœurs.", "Deux cœurs envoient le sang vers les branchies, le troisième vers le reste du corps. Son sang est bleu, grâce à une molécule à base de cuivre.", "animaux"),
     ("La tour Eiffel grandit quand il fait chaud.", "Sous l'effet de la chaleur, le métal se dilate : en été, la Dame de fer peut gagner une quinzaine de centimètres.", "architecture"),
@@ -55,7 +61,7 @@ def generer_ia(themes, jour):
         liste = json.loads(re.search(r"\[.*\]", brut, re.S).group(0))
         if len(liste) != 3:
             raise ValueError("format inattendu")
-        return [{k: " ".join(str(x.get(k, "")).split()) for k in ("titre", "texte", "legende", "photo")} for x in liste]
+        return [{k: " ".join(str(x.get(k, "")).split()) for k in ("titre", "texte", "mot_cle", "legende", "photo")} for x in liste]
     except Exception as e:
         print(f"IA indisponible ({e}) : savoirs de secours.")
         return None
@@ -113,30 +119,64 @@ def panneau_secours(theme):
     return img
 
 
-def dessiner(titre, texte, photo, chemin):
+def _fondu(photo):
+    """Fond noir qui remonte en dégradé sur le bas de la photo : la photo se fond dans le texte."""
+    p = photo.convert("RGB")
+    haut = 240
+    masque = Image.new("L", p.size, 0)
+    md = ImageDraw.Draw(masque)
+    for y in range(haut):
+        md.line([(0, p.height - haut + y), (p.width, p.height - haut + y)], fill=int(255 * (y / haut) ** 1.6))
+    p.paste(Image.new("RGB", p.size, BG), (0, 0), masque)
+    return p
+
+
+def _titre_colore(d, lignes, mots_or, font, y, pas):
+    """Titre centré, les mots-clés en doré, le reste en blanc."""
+    esp = d.textlength(" ", font=font)
+    for l in lignes:
+        mots = l.split()
+        larg = sum(d.textlength(m, font=font) for m in mots) + esp * (len(mots) - 1)
+        x = (W - larg) / 2
+        for m in mots:
+            nu = re.sub(r"[^\w]", "", m)
+            d.text((x, y + int(font.size * 0.95)), m, font=font, fill=GOLD if nu in mots_or else INK, anchor="ls")
+            x += d.textlength(m, font=font) + esp
+        y += pas
+    return y
+
+
+def dessiner(titre, texte, photo, chemin, mot_cle=""):
     titre, texte = _nettoyer(titre).upper(), _nettoyer(texte)   # titres en capitales
+    mots_or = {re.sub(r"[^\w]", "", m) for m in _nettoyer(mot_cle).upper().split()}
     img = Image.new("RGB", (W, H), BG)
-    img.paste(photo, (0, 0))
+    img.paste(_fondu(photo), (0, 0))
     d = ImageDraw.Draw(img)
-    marge, largeur = 60, W - 120
-    zone_haut, zone_bas = PHOTO_H, H - 30
-    # polices : on réduit jusqu'à ce que tout tienne
-    t_titre, t_texte = 46, 34
+    largeur = W - 120
+    # pastille « LE SAVIEZ-VOUS ? » à cheval sur le bas de la photo
+    pf = _police("HugMeTight.ttf", 28)
+    pw = int(d.textlength("LE SAVIEZ-VOUS ?", font=pf)) + 70
+    py = PHOTO_H - 28
+    d.rounded_rectangle([(W - pw) // 2, py, (W + pw) // 2, py + 56], 28, fill=BG, outline=GOLD, width=3)
+    d.text((W // 2, py + 29), "LE SAVIEZ-VOUS ?", font=pf, fill=GOLD, anchor="mm")
+    zone_haut, zone_bas = py + 56 + 20, H - 100
+    t_titre, t_texte = 50, 35
     while True:
         ft, fx = _police("Poppins-Bold.ttf", t_titre), _police("Quote.ttf", t_texte)
         lt, lx = _lignes(d, titre, ft, largeur), _lignes(d, texte, fx, largeur)
-        h_tot = 40 + 16 + len(lt) * int(t_titre * 1.2) + 18 + len(lx) * int(t_texte * 1.35)
-        if h_tot <= zone_bas - zone_haut - 30 or (t_titre <= 30 and t_texte <= 26):
+        h_tot = len(lt) * int(t_titre * 1.22) + 34 + len(lx) * int(t_texte * 1.38)
+        if h_tot <= zone_bas - zone_haut or (t_titre <= 30 and t_texte <= 26):
             break
         t_titre, t_texte = max(30, t_titre - 2), max(26, t_texte - 1)
     y = zone_haut + ((zone_bas - zone_haut) - h_tot) // 2
-    d.text((W // 2, y + 14), "LE SAVIEZ-VOUS ?", font=_police("HugMeTight.ttf", 26), fill=GOLD, anchor="mm")
-    y += 40 + 16
-    for l in lt:
-        d.text((W // 2, y), l, font=ft, fill=INK, anchor="mt"); y += int(t_titre * 1.2)
-    y += 18
+    y = _titre_colore(d, lt, mots_or, ft, y, int(t_titre * 1.22))
+    d.rounded_rectangle([W // 2 - 50, y + 10, W // 2 + 50, y + 14], 2, fill=GOLD)   # filet doré
+    y += 34
     for l in lx:
-        d.text((W // 2, y), l, font=fx, fill=INK, anchor="mt"); y += int(t_texte * 1.35)
+        d.text((W // 2, y), l, font=fx, fill=INK, anchor="mt"); y += int(t_texte * 1.38)
+    # appel à l'action
+    fc = _police("Poppins-Bold.ttf", 21)
+    d.text((W // 2, H - 52), "ENREGISTREZ  ·  PARTAGEZ À UN CURIEUX", font=fc, fill=GOLD, anchor="mm")
     img.save(chemin, quality=95)
 
 
@@ -157,11 +197,11 @@ def main():
             photo = ia.generer_image(c["photo"] + " Photorealistic, no text, no letters, no watermark.") if c["photo"] else None
         else:
             titre, texte, theme = SECOURS[(jour.toordinal() * 3 + i) % len(SECOURS)]
-            c = {"titre": titre, "texte": texte, "legende": f"{texte} Le saviez-vous ? Dites-le en commentaire 👇", "photo": ""}
+            c = {"titre": titre, "texte": texte, "mot_cle": MOTS_CLES.get(titre, ""), "legende": f"{texte} Le saviez-vous ? Dites-le en commentaire 👇", "photo": ""}
             photo = None
         photo = photo_4_3(photo) if photo else panneau_secours(theme)
         nom = f"savoir_{i + 1}.png"
-        dessiner(c["titre"], c["texte"], photo, dossier / nom)
+        dessiner(c["titre"], c["texte"], photo, dossier / nom, c.get("mot_cle", ""))
         posts.append({"images": [nom], "caption": f"{c['legende']}\n\n{HASHTAGS}"})
     (dossier / "manifest.json").write_text(json.dumps({"date": jour.isoformat(), "pause": 20, "posts": posts},
                                                       ensure_ascii=False, indent=1), encoding="utf-8")
