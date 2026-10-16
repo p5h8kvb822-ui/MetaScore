@@ -31,3 +31,67 @@ def demander(prompt, max_tokens=3000):
     if not r.ok:
         raise RuntimeError(f"Anthropic {r.status_code} : {r.text[:300]}")
     return "".join(b.get("text", "") for b in r.json()["content"] if b.get("type") == "text")
+
+
+def image(prompt):
+    """Photo générée par l'IA (objet PIL, ratio 3:2), ou None si la clé OpenAI est absente ou si la génération échoue.
+    Modèle modifiable avec la variable OPENAI_IMAGE_MODEL (défaut : gpt-image-1, puis dall-e-3 en repli)."""
+    import base64, io
+    from PIL import Image
+    cle = os.getenv("OPENAI_API_KEY", "").strip()
+    cle_a = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if not cle and cle_a and not cle_a.startswith("sk-ant"):
+        cle = cle_a
+    if not cle:
+        return None
+    perso = os.getenv("OPENAI_IMAGE_MODEL", "").strip()
+    essais = ([(perso, {})] if perso else []) + [
+        ("gpt-image-1", {"size": "1536x1024", "quality": "medium"}),
+        ("dall-e-3", {"size": "1792x1024", "quality": "standard", "response_format": "b64_json"}),
+    ]
+    for modele, extra in essais:
+        try:
+            r = requests.post("https://api.openai.com/v1/images/generations", timeout=240,
+                              headers={"Authorization": f"Bearer {cle}", "Content-Type": "application/json"},
+                              json={"model": modele, "prompt": prompt, "n": 1, **extra})
+            if not r.ok:
+                print(f"  image {modele} : {r.status_code} {r.text[:200]}")
+                continue
+            d = r.json()["data"][0]
+            if d.get("b64_json"):
+                return Image.open(io.BytesIO(base64.b64decode(d["b64_json"]))).convert("RGB")
+            if d.get("url"):
+                return Image.open(io.BytesIO(requests.get(d["url"], timeout=120).content)).convert("RGB")
+        except Exception as e:
+            print(f"  image {modele} : {e}")
+    return None
+
+
+def generer_image(prompt):
+    """Photo générée par OpenAI (gpt-image-1, puis dall-e-3 en repli) -> image PIL, ou None si impossible."""
+    import base64, io
+    from PIL import Image
+    cle = os.getenv("OPENAI_API_KEY", "").strip() or os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if not cle or cle.startswith("sk-ant"):
+        return None
+    essais = []
+    choix = os.getenv("OPENAI_IMAGE_MODEL", "").strip()
+    if choix:
+        essais.append({"model": choix, "prompt": prompt, "size": "1536x1024"})
+    essais += [{"model": "gpt-image-1", "prompt": prompt, "size": "1536x1024", "quality": "medium"},
+               {"model": "dall-e-3", "prompt": prompt, "size": "1792x1024", "response_format": "b64_json"}]
+    for corps in essais:
+        try:
+            r = requests.post("https://api.openai.com/v1/images/generations", timeout=240,
+                              headers={"Authorization": f"Bearer {cle}", "Content-Type": "application/json"}, json=corps)
+            if not r.ok:
+                print(f"  image {corps['model']} refusée : {r.status_code} {r.text[:200]}")
+                continue
+            d = r.json()["data"][0]
+            if d.get("b64_json"):
+                return Image.open(io.BytesIO(base64.b64decode(d["b64_json"]))).convert("RGB")
+            if d.get("url"):
+                return Image.open(io.BytesIO(requests.get(d["url"], timeout=120).content)).convert("RGB")
+        except Exception as e:
+            print(f"  image {corps['model']} en échec : {e}")
+    return None
